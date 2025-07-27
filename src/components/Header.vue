@@ -127,7 +127,7 @@ const menuItems = [
   {
     label: 'Adicionar Contato',
     icon: 'person_add',
-    command: () => router.push('/about'),
+    command: () => router.push('/cadastro'),
   },
 ]
 

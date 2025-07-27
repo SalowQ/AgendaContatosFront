@@ -1,27 +1,15 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useAuth } from '@/composables/useAuth'
-import * as contatosAPI from '@/api/contatos.js'
+import { useContacts } from '@/composables/useContacts'
 
 const { user } = useAuth()
-
-// Tipos
-interface Contato {
-  id: number
-  name: string
-  phone: string
-  email: string
-}
-
-// Estados reativos
-const contatos = ref<Contato[]>([])
-const loading = ref(false)
-const error = ref<string | null>(null)
+const { contatos, error, carregarContatos } = useContacts()
 
 // Organizar contatos por ordem alfabética
 const contactsByLetter = computed(() => {
-  const grouped: Record<string, Contato[]> = contatos.value.reduce(
-    (acc: Record<string, Contato[]>, contact) => {
+  const grouped: Record<string, typeof contatos.value> = contatos.value.reduce(
+    (acc: Record<string, typeof contatos.value>, contact) => {
       const firstLetter = contact.name.charAt(0).toUpperCase()
       if (!acc[firstLetter]) {
         acc[firstLetter] = []
@@ -40,7 +28,7 @@ const contactsByLetter = computed(() => {
         acc[letter] = grouped[letter].sort((a, b) => a.name.localeCompare(b.name))
         return acc
       },
-      {} as Record<string, Contato[]>,
+      {} as Record<string, typeof contatos.value>,
     )
 })
 
@@ -54,8 +42,8 @@ const formatarTelefone = (phone: string): string => {
   // Remove caracteres não numéricos
   const numeros = phone.replace(/\D/g, '')
 
-  // Verifica se tem pelo menos 10 dígitos (DDD + número)
-  if (numeros.length >= 10) {
+  // Verifica se tem exatamente 11 dígitos (DDD + número)
+  if (numeros.length === 11) {
     const ddd = numeros.substring(0, 2)
     const numero = numeros.substring(2)
 
@@ -76,26 +64,6 @@ const formatarTelefone = (phone: string): string => {
   return phone
 }
 
-// Função para carregar contatos da API
-const carregarContatos = async () => {
-  loading.value = true
-  error.value = null
-
-  try {
-    const result = await contatosAPI.getContatos()
-    if (result.success && result.data) {
-      contatos.value = result.data.contacts || []
-    } else {
-      error.value = result.error || 'Erro ao carregar contatos'
-    }
-  } catch (err) {
-    error.value = 'Erro ao carregar contatos'
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
-}
-
 // Lifecycle
 onMounted(() => {
   carregarContatos()
@@ -111,14 +79,8 @@ onMounted(() => {
         <p>Visualize e gerencie seus contatos organizados alfabeticamente</p>
       </div>
 
-      <!-- Loading -->
-      <div v-if="loading" class="text-center py-8">
-        <span class="material-icons text-4xl text-blue-500 animate-spin">refresh</span>
-        <p class="mt-2 text-gray-600">Carregando contatos...</p>
-      </div>
-
       <!-- Error -->
-      <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+      <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
         <div class="flex items-center">
           <span class="material-icons text-red-500 mr-2">error</span>
           <p class="text-red-700">{{ error }}</p>
@@ -126,7 +88,7 @@ onMounted(() => {
       </div>
 
       <!-- Estatísticas -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+      <div v-if="!error" class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
         <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
           <div class="flex items-center">
             <span class="material-icons text-blue-500 !text-5xl mr-3">people</span>
@@ -151,7 +113,7 @@ onMounted(() => {
       </div>
 
       <!-- Grid Alfabético -->
-      <div v-if="!loading && !error" class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div v-if="!error" class="bg-white rounded-lg shadow-sm border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">
           <h2 class="text-xl font-semibold text-gray-900">Contatos por Ordem Alfabética</h2>
         </div>

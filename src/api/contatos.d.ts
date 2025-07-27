@@ -16,10 +16,10 @@ interface APIResponse<T> {
 }
 
 export declare function getContatos(): Promise<APIResponse<APIResponse>>
-export declare function getContatoById(id: number): Promise<APIResponse<Contato>>
 export declare function createContato(
   contatoData: Omit<Contato, 'id'>,
 ): Promise<APIResponse<Contato>>
+export declare function getContatoById(id: number): Promise<APIResponse<Contato>>
 export declare function updateContato(
   id: number,
   contatoData: Partial<Contato>,

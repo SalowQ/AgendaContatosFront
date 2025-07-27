@@ -4,10 +4,13 @@ import { useAuth } from '@/composables/useAuth'
 import { useRouter, useRoute } from 'vue-router'
 import { watch, computed, onMounted } from 'vue'
 import Header from '@/components/Header.vue'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import { useLoading } from '@/composables/useLoading'
 
 const { isAuthenticated } = useAuth()
 const router = useRouter()
 const route = useRoute()
+const { isLoading, loadingMessage } = useLoading()
 
 const isLoginPage = computed(() => route.name === 'login')
 
@@ -62,4 +65,7 @@ watch(
   <div v-else class="min-h-screen" :class="{ 'login-page': isLoginPage }">
     <RouterView />
   </div>
+
+  <!-- Loading Spinner Global -->
+  <LoadingSpinner :show="isLoading" :message="loadingMessage" />
 </template>
