@@ -1,28 +1,27 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuth } from '@/composables/useAuth'
+import * as contatosAPI from '@/api/contatos.js'
 
 const { user } = useAuth()
 
-// Dados de exemplo - será substituído por dados reais
-const contacts = ref([
-  { id: 1, name: 'Ana Silva', phone: '(11) 99999-1111', email: 'ana@email.com' },
-  { id: 2, name: 'Bruno Santos', phone: '(11) 99999-2222', email: 'bruno@email.com' },
-  { id: 3, name: 'Carlos Oliveira', phone: '(11) 99999-3333', email: 'carlos@email.com' },
-  { id: 4, name: 'Daniel Costa', phone: '(11) 99999-4444', email: 'daniel@email.com' },
-  { id: 11, name: 'Eliana Lima Ferreira', phone: '(11) 99999-5555', email: 'eliana@email.com' },
-  { id: 5, name: 'Elena Ferreira', phone: '(11) 99999-5555', email: 'elena@email.com' },
-  { id: 6, name: 'Fernando Lima', phone: '(11) 99999-6666', email: 'fernando@email.com' },
-  { id: 7, name: 'Gabriela Rocha', phone: '(11) 99999-7777', email: 'gabriela@email.com' },
-  { id: 8, name: 'Henrique Alves', phone: '(11) 99999-8888', email: 'henrique@email.com' },
-  { id: 9, name: 'Isabela Martins', phone: '(11) 99999-9999', email: 'isabela@email.com' },
-  { id: 10, name: 'João Pereira', phone: '(11) 99999-0000', email: 'joao@email.com' },
-])
+// Tipos
+interface Contato {
+  id: number
+  name: string
+  phone: string
+  email: string
+}
+
+// Estados reativos
+const contatos = ref<Contato[]>([])
+const loading = ref(false)
+const error = ref<string | null>(null)
 
 // Organizar contatos por ordem alfabética
 const contactsByLetter = computed(() => {
-  const grouped = contacts.value.reduce(
-    (acc, contact) => {
+  const grouped: Record<string, Contato[]> = contatos.value.reduce(
+    (acc: Record<string, Contato[]>, contact) => {
       const firstLetter = contact.name.charAt(0).toUpperCase()
       if (!acc[firstLetter]) {
         acc[firstLetter] = []
@@ -30,7 +29,7 @@ const contactsByLetter = computed(() => {
       acc[firstLetter].push(contact)
       return acc
     },
-    {} as Record<string, typeof contacts.value>,
+    {},
   )
 
   // Ordenar as letras e os contatos dentro de cada letra
@@ -41,12 +40,37 @@ const contactsByLetter = computed(() => {
         acc[letter] = grouped[letter].sort((a, b) => a.name.localeCompare(b.name))
         return acc
       },
-      {} as Record<string, typeof contacts.value>,
+      {} as Record<string, Contato[]>,
     )
 })
 
 // Todas as letras do alfabeto para mostrar seções vazias
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+
+// Função para carregar contatos da API
+const carregarContatos = async () => {
+  loading.value = true
+  error.value = null
+
+  try {
+    const result = await contatosAPI.getContatos()
+    if (result.success && result.data) {
+      contatos.value = result.data.contacts || []
+    } else {
+      error.value = result.error || 'Erro ao carregar contatos'
+    }
+  } catch (err) {
+    error.value = 'Erro ao carregar contatos'
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Lifecycle
+onMounted(() => {
+  carregarContatos()
+})
 </script>
 
 <template>
@@ -58,14 +82,28 @@ const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
         <p>Visualize e gerencie seus contatos organizados alfabeticamente</p>
       </div>
 
+      <!-- Loading -->
+      <div v-if="loading" class="text-center py-8">
+        <span class="material-icons text-4xl text-blue-500 animate-spin">refresh</span>
+        <p class="mt-2 text-gray-600">Carregando contatos...</p>
+      </div>
+
+      <!-- Error -->
+      <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div class="flex items-center">
+          <span class="material-icons text-red-500 mr-2">error</span>
+          <p class="text-red-700">{{ error }}</p>
+        </div>
+      </div>
+
       <!-- Estatísticas -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
         <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
           <div class="flex items-center">
             <span class="material-icons text-blue-500 !text-5xl mr-3">people</span>
             <div>
               <p class="text-sm font-medium text-gray-600">Total de Contatos</p>
-              <p class="text-2xl font-bold text-gray-900">{{ contacts.length }}</p>
+              <p class="text-2xl font-bold text-gray-900">{{ contatos.length }}</p>
             </div>
           </div>
         </div>
@@ -84,7 +122,7 @@ const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
       </div>
 
       <!-- Grid Alfabético -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div v-if="!loading && !error" class="bg-white rounded-lg shadow-sm border border-gray-200">
         <div class="px-6 py-4 border-b border-gray-200">
           <h2 class="text-xl font-semibold text-gray-900">Contatos por Ordem Alfabética</h2>
         </div>
