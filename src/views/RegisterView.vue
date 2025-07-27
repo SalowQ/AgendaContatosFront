@@ -70,7 +70,7 @@
               type="submit"
               class="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              <span class="material-icons mr-2">save</span>
+              <span class="material-icons pr-2">save</span>
               Salvar Contato
             </button>
 
@@ -79,7 +79,7 @@
               @click="limparFormulario"
               class="flex-1 bg-gray-200 text-gray-700 py-3 px-6 rounded-lg font-semibold transition-all duration-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
             >
-              <span class="material-icons mr-2">clear</span>
+              <span class="material-icons pr-2">clear</span>
               Limpar
             </button>
           </div>
