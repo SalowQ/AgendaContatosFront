@@ -34,17 +34,15 @@ const { login } = useAuth()
 
 const username = ref('')
 
-const handleLogin = async () => {
+const handleLogin = () => {
   if (username.value.trim()) {
     login(username.value.trim())
-    // Aguardar um tick para garantir que o estado foi atualizado
-    await router.push('/')
+    router.push('/')
   }
 }
 </script>
 
 <style scoped>
-/* Reset dos estilos globais para a tela de login */
 .login-container {
   display: flex !important;
   justify-content: center;
@@ -145,7 +143,6 @@ const handleLogin = async () => {
   box-shadow: none;
 }
 
-/* Responsividade para mobile */
 @media (max-width: 768px) {
   .login-container {
     padding: 15px;

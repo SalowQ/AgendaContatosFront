@@ -2,9 +2,9 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useRouter, useRoute } from 'vue-router'
-import { watch, onMounted, computed, nextTick } from 'vue'
+import { watch, computed, onMounted } from 'vue'
 
-const { isAuthenticated, user, logout, checkAuth } = useAuth()
+const { isAuthenticated, user, logout } = useAuth()
 const router = useRouter()
 const route = useRoute()
 
@@ -15,52 +15,67 @@ const handleLogout = () => {
   router.push('/login')
 }
 
-// Verificar autenticação quando o componente for montado
-onMounted(async () => {
-  checkAuth()
-  if (!isAuthenticated.value) {
-    await router.push('/login')
+onMounted(() => {
+  if (route.name) {
+    if (isAuthenticated.value && route.name === 'login') {
+      router.push('/')
+    }
   }
 })
 
-// Observar mudanças na autenticação
-watch(isAuthenticated, async (newValue) => {
-  if (!newValue && route.name !== 'login') {
-    await router.push('/login')
-  }
-})
-
-// Observar mudanças na rota para verificar autenticação
 watch(
   () => route.name,
-  async (newRouteName) => {
-    if (newRouteName !== 'login' && !isAuthenticated.value) {
-      await router.push('/login')
+  (newRouteName) => {
+    if (newRouteName && isAuthenticated.value && newRouteName === 'login') {
+      router.push('/')
     }
   },
   { immediate: true },
+)
+
+watch(
+  isAuthenticated,
+  (newValue) => {
+    if (newValue && route.name !== 'login') {
+      router.push('/login')
+    } else if (newValue && route.name === 'login') {
+      router.push('/')
+    }
+  },
+  { immediate: true },
+)
+
+watch(
+  () => route.name,
+  (newRouteName) => {
+    if (newRouteName && newRouteName !== 'login' && !isAuthenticated.value) {
+      router.push('/login')
+    }
+  },
 )
 </script>
 
 <template>
   <div v-if="isAuthenticated" class="app-container">
-    <header>
-      <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+    <header class="header">
+      <div class="header-content">
+        <div class="nav-container">
+          <nav class="nav-menu">
+            <RouterLink to="/" class="nav-link">Home</RouterLink>
+            <RouterLink to="/about" class="nav-link">About</RouterLink>
+          </nav>
+        </div>
 
-      <div class="wrapper">
-        <nav>
-          <RouterLink to="/">Home</RouterLink>
-          <RouterLink to="/about">About</RouterLink>
-        </nav>
-
-        <div class="user-info">
+        <div class="user-section">
           <span class="welcome-text">Olá, {{ user }}!</span>
           <button @click="handleLogout" class="logout-button">Sair</button>
         </div>
       </div>
     </header>
 
-    <RouterView />
+    <main class="main-content">
+      <RouterView />
+    </main>
   </div>
 
   <div v-else class="app-container" :class="{ 'login-page': isLoginPage }">
@@ -72,60 +87,74 @@ watch(
 .app-container {
   width: 100%;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.header {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-.wrapper {
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  height: 70px;
 }
 
-nav {
-  width: auto;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+.nav-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+.nav-menu {
+  display: flex;
+  gap: 0;
+  align-items: center;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
+.nav-link {
   display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
+  padding: 12px 20px;
+  text-decoration: none;
+  color: var(--color-text);
+  font-weight: 500;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+  margin: 0 5px;
 }
 
-nav a:first-of-type {
-  border: 0;
+.nav-link:hover {
+  background-color: var(--color-background-soft);
+  color: var(--color-heading);
 }
 
-.user-info {
+.nav-link.router-link-active {
+  color: var(--color-heading);
+  background-color: var(--color-background-soft);
+  font-weight: 600;
+}
+
+.user-section {
   display: flex;
   align-items: center;
   gap: 15px;
-  margin-top: 2rem;
+  flex-shrink: 0;
 }
 
 .welcome-text {
   color: var(--color-text);
   font-size: 14px;
+  font-weight: 500;
 }
 
 .logout-button {
@@ -134,43 +163,83 @@ nav a:first-of-type {
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .logout-button:hover {
   background: #c82333;
+  transform: translateY(-1px);
 }
 
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+.main-content {
+  flex: 1;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0 15px;
+    height: 60px;
   }
 
-  .logo {
-    margin: 0 2rem 0 0;
+  .nav-link {
+    padding: 10px 15px;
+    font-size: 14px;
   }
 
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
+  .welcome-text {
+    font-size: 12px;
   }
 
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
+  .logout-button {
+    padding: 6px 12px;
+    font-size: 12px;
   }
 
-  .user-info {
-    margin-top: 0;
+  .user-section {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-content {
+    padding: 0 10px;
+    height: 55px;
+  }
+
+  .nav-link {
+    padding: 8px 12px;
+    font-size: 13px;
+    margin: 0 2px;
+  }
+
+  .welcome-text {
+    display: none;
+  }
+
+  .logout-button {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .user-section {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav-link {
+    padding: 6px 8px;
+    font-size: 12px;
+    margin: 0 1px;
+  }
+
+  .logout-button {
+    padding: 5px 8px;
+    font-size: 10px;
   }
 }
 </style>

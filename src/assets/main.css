@@ -20,17 +20,3 @@ a,
     background-color: hsla(160, 100%, 37%, 0.2);
   }
 }
-
-/* Aplicar estilos responsivos apenas quando não estiver na tela de login */
-@media (min-width: 1024px) {
-  body:not(.login-page) {
-    display: flex;
-    place-items: center;
-  }
-
-  #app:not(.login-page) {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
-  }
-}

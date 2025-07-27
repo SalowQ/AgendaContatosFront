@@ -1,14 +1,16 @@
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 const USER_STORAGE_KEY = 'usuarioagendacontato'
 
-export function useAuth() {
+let authInstance: ReturnType<typeof createAuth> | null = null
+
+function createAuth() {
   const user = ref<string | null>(null)
   const isAuthenticated = ref(false)
 
   const checkAuth = () => {
     const storedUser = localStorage.getItem(USER_STORAGE_KEY)
-    if (storedUser) {
+    if (storedUser && storedUser.trim()) {
       user.value = storedUser
       isAuthenticated.value = true
     } else {
@@ -18,9 +20,12 @@ export function useAuth() {
   }
 
   const login = (username: string) => {
-    localStorage.setItem(USER_STORAGE_KEY, username)
-    user.value = username
-    isAuthenticated.value = true
+    const cleanUsername = username.trim()
+    if (cleanUsername) {
+      localStorage.setItem(USER_STORAGE_KEY, cleanUsername)
+      user.value = cleanUsername
+      isAuthenticated.value = true
+    }
   }
 
   const logout = () => {
@@ -29,12 +34,7 @@ export function useAuth() {
     isAuthenticated.value = false
   }
 
-  // Verificar autenticação imediatamente
   checkAuth()
-
-  onMounted(() => {
-    checkAuth()
-  })
 
   return {
     user,
@@ -43,4 +43,11 @@ export function useAuth() {
     logout,
     checkAuth,
   }
+}
+
+export function useAuth() {
+  if (!authInstance) {
+    authInstance = createAuth()
+  }
+  return authInstance
 }
