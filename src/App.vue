@@ -1,23 +1,67 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
+import { useRouter, useRoute } from 'vue-router'
+import { watch, onMounted, computed } from 'vue'
+
+const { isAuthenticated, user, logout } = useAuth()
+const router = useRouter()
+const route = useRoute()
+
+const isLoginPage = computed(() => route.name === 'login')
+
+const handleLogout = () => {
+  logout()
+  router.push('/login')
+}
+
+// Verificar autenticação quando o componente for montado
+onMounted(() => {
+  if (!isAuthenticated.value) {
+    router.push('/login')
+  }
+})
+
+// Observar mudanças na autenticação
+watch(isAuthenticated, (newValue) => {
+  if (!newValue) {
+    router.push('/login')
+  }
+})
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <div v-if="isAuthenticated" class="app-container">
+    <header>
+      <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
-    <div class="wrapper">
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
+      <div class="wrapper">
+        <nav>
+          <RouterLink to="/">Home</RouterLink>
+          <RouterLink to="/about">About</RouterLink>
+        </nav>
 
-  <RouterView />
+        <div class="user-info">
+          <span class="welcome-text">Olá, {{ user }}!</span>
+          <button @click="handleLogout" class="logout-button">Sair</button>
+        </div>
+      </div>
+    </header>
+
+    <RouterView />
+  </div>
+
+  <div v-else class="app-container" :class="{ 'login-page': isLoginPage }">
+    <RouterView />
+  </div>
 </template>
 
 <style scoped>
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+}
+
 header {
   line-height: 1.5;
   max-height: 100vh;
@@ -28,8 +72,15 @@ header {
   margin: 0 auto 2rem;
 }
 
+.wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 nav {
-  width: 100%;
+  width: auto;
   font-size: 12px;
   text-align: center;
   margin-top: 2rem;
@@ -51,6 +102,33 @@ nav a {
 
 nav a:first-of-type {
   border: 0;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 2rem;
+}
+
+.welcome-text {
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.logout-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background: #c82333;
 }
 
 @media (min-width: 1024px) {
@@ -77,6 +155,10 @@ nav a:first-of-type {
 
     padding: 1rem 0;
     margin-top: 1rem;
+  }
+
+  .user-info {
+    margin-top: 0;
   }
 }
 </style>
