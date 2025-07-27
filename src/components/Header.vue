@@ -120,13 +120,13 @@ const isMobileMenuOpen = ref(false)
 
 const menuItems = [
   {
-    label: 'Home',
+    label: 'Início',
     icon: 'home',
     command: () => router.push('/'),
   },
   {
-    label: 'About',
-    icon: 'info',
+    label: 'Adicionar Contato',
+    icon: 'person_add',
     command: () => router.push('/about'),
   },
 ]
