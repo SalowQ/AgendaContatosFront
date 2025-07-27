@@ -15,6 +15,19 @@ const handleLogout = () => {
   router.push('/login')
 }
 
+const menuItems = [
+  {
+    label: 'Home',
+    icon: '🏠',
+    command: () => router.push('/'),
+  },
+  {
+    label: 'About',
+    icon: 'ℹ️',
+    command: () => router.push('/about'),
+  },
+]
+
 onMounted(() => {
   if (route.name) {
     if (isAuthenticated.value && route.name === 'login') {
@@ -57,18 +70,31 @@ watch(
 
 <template>
   <div v-if="isAuthenticated" class="app-container">
-    <header class="header">
+    <header class="header-menubar">
       <div class="header-content">
-        <div class="nav-container">
-          <nav class="nav-menu">
-            <RouterLink to="/" class="nav-link">Home</RouterLink>
-            <RouterLink to="/about" class="nav-link">About</RouterLink>
-          </nav>
+        <div class="header-start">
+          <div class="flex align-items-center gap-2">
+            <span class="header-icon">📅</span>
+            <span class="header-title">Agenda de Contatos</span>
+          </div>
         </div>
 
-        <div class="user-section">
-          <span class="welcome-text">Olá, {{ user }}!</span>
-          <button @click="handleLogout" class="logout-button">Sair</button>
+        <nav class="header-nav">
+          <ul class="nav-list">
+            <li v-for="item in menuItems" :key="item.label" class="nav-item">
+              <button @click="item.command" class="nav-button">
+                <span class="nav-icon">{{ item.icon }}</span>
+                <span class="nav-label">{{ item.label }}</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        <div class="header-end">
+          <div class="flex align-items-center gap-2">
+            <span class="user-greeting">Olá, {{ user }}!</span>
+            <button class="logout-button" @click="handleLogout" title="Sair">🚪</button>
+          </div>
         </div>
       </div>
     </header>
@@ -91,87 +117,108 @@ watch(
   flex-direction: column;
 }
 
-.header {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.header-menubar {
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  height: 70px;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 60px;
 }
 
-.nav-container {
+.header-start {
+  display: flex;
+  align-items: center;
+}
+
+.header-icon {
+  font-size: 1.5rem;
+  margin-right: 8px;
+}
+
+.header-title {
+  font-weight: bold;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.header-nav {
   flex: 1;
   display: flex;
   justify-content: center;
 }
 
-.nav-menu {
+.nav-list {
   display: flex;
-  gap: 0;
-  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 20px;
 }
 
-.nav-link {
-  display: inline-block;
-  padding: 12px 20px;
-  text-decoration: none;
-  color: var(--color-text);
-  font-weight: 500;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  border-radius: 8px;
-  margin: 0 5px;
+.nav-item {
+  margin: 0;
 }
 
-.nav-link:hover {
-  background-color: var(--color-background-soft);
-  color: var(--color-heading);
-}
-
-.nav-link.router-link-active {
-  color: var(--color-heading);
-  background-color: var(--color-background-soft);
-  font-weight: 600;
-}
-
-.user-section {
+.nav-button {
   display: flex;
   align-items: center;
-  gap: 15px;
-  flex-shrink: 0;
-}
-
-.welcome-text {
-  color: var(--color-text);
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #666;
   font-size: 14px;
+}
+
+.nav-button:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.nav-icon {
+  font-size: 16px;
+}
+
+.nav-label {
   font-weight: 500;
+}
+
+.header-end {
+  display: flex;
+  align-items: center;
+}
+
+.user-greeting {
+  font-size: 14px;
+  color: #666;
+  margin-right: 12px;
 }
 
 .logout-button {
   background: #dc3545;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 8px 12px;
   border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: 16px;
+  transition: background-color 0.2s;
 }
 
 .logout-button:hover {
   background: #c82333;
-  transform: translateY(-1px);
 }
 
 .main-content {
@@ -179,67 +226,43 @@ watch(
   padding: 20px;
 }
 
+.flex {
+  display: flex;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.gap-2 {
+  gap: 8px;
+}
+
 @media (max-width: 768px) {
   .header-content {
     padding: 0 15px;
-    height: 60px;
   }
 
-  .nav-link {
-    padding: 10px 15px;
-    font-size: 14px;
+  .main-content {
+    padding: 15px;
   }
 
-  .welcome-text {
-    font-size: 12px;
-  }
-
-  .logout-button {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .user-section {
+  .nav-list {
     gap: 10px;
+  }
+
+  .nav-label {
+    display: none;
   }
 }
 
 @media (max-width: 480px) {
-  .header-content {
-    padding: 0 10px;
-    height: 55px;
+  .main-content {
+    padding: 10px;
   }
 
-  .nav-link {
-    padding: 8px 12px;
-    font-size: 13px;
-    margin: 0 2px;
-  }
-
-  .welcome-text {
-    display: none;
-  }
-
-  .logout-button {
-    padding: 6px 10px;
-    font-size: 11px;
-  }
-
-  .user-section {
-    gap: 8px;
-  }
-}
-
-@media (max-width: 360px) {
-  .nav-link {
-    padding: 6px 8px;
-    font-size: 12px;
-    margin: 0 1px;
-  }
-
-  .logout-button {
-    padding: 5px 8px;
-    font-size: 10px;
+  .header-title {
+    font-size: 1rem;
   }
 }
 </style>
