@@ -47,6 +47,35 @@ const contactsByLetter = computed(() => {
 // Todas as letras do alfabeto para mostrar seções vazias
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
+// Função para formatar número de telefone
+const formatarTelefone = (phone: string): string => {
+  if (!phone) return ''
+
+  // Remove caracteres não numéricos
+  const numeros = phone.replace(/\D/g, '')
+
+  // Verifica se tem pelo menos 10 dígitos (DDD + número)
+  if (numeros.length >= 10) {
+    const ddd = numeros.substring(0, 2)
+    const numero = numeros.substring(2)
+
+    // Formata baseado no tamanho do número
+    if (numero.length === 8) {
+      // (11) 1234-5678
+      return `(${ddd}) ${numero.substring(0, 4)}-${numero.substring(4)}`
+    } else if (numero.length === 9) {
+      // (11) 12345-6789
+      return `(${ddd}) ${numero.substring(0, 5)}-${numero.substring(5)}`
+    } else {
+      // Formato genérico se não se encaixar nos padrões
+      return `(${ddd}) ${numero}`
+    }
+  }
+
+  // Retorna o número original se não conseguir formatar
+  return phone
+}
+
 // Função para carregar contatos da API
 const carregarContatos = async () => {
   loading.value = true
@@ -162,7 +191,9 @@ onMounted(() => {
                     </div>
                     <div class="flex-1 min-w-0">
                       <p class="text-sm font-medium text-gray-900 truncate">{{ contact.name }}</p>
-                      <p class="text-xs text-gray-500 truncate">{{ contact.phone }}</p>
+                      <p class="text-xs text-gray-500 truncate">
+                        {{ formatarTelefone(contact.phone) }}
+                      </p>
                     </div>
                   </div>
                 </div>
