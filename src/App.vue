@@ -2,9 +2,9 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useRouter, useRoute } from 'vue-router'
-import { watch, onMounted, computed } from 'vue'
+import { watch, onMounted, computed, nextTick } from 'vue'
 
-const { isAuthenticated, user, logout } = useAuth()
+const { isAuthenticated, user, logout, checkAuth } = useAuth()
 const router = useRouter()
 const route = useRoute()
 
@@ -16,18 +16,30 @@ const handleLogout = () => {
 }
 
 // Verificar autenticação quando o componente for montado
-onMounted(() => {
+onMounted(async () => {
+  checkAuth()
   if (!isAuthenticated.value) {
-    router.push('/login')
+    await router.push('/login')
   }
 })
 
 // Observar mudanças na autenticação
-watch(isAuthenticated, (newValue) => {
-  if (!newValue) {
-    router.push('/login')
+watch(isAuthenticated, async (newValue) => {
+  if (!newValue && route.name !== 'login') {
+    await router.push('/login')
   }
 })
+
+// Observar mudanças na rota para verificar autenticação
+watch(
+  () => route.name,
+  async (newRouteName) => {
+    if (newRouteName !== 'login' && !isAuthenticated.value) {
+      await router.push('/login')
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>

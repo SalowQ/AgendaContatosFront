@@ -6,9 +6,8 @@ const { user } = useAuth()
 
 <template>
   <main>
-    <h1>Bem-vindo à Agenda de Contatos</h1>
-    <p v-if="user">Olá, {{ user }}! Aqui você pode gerenciar seus contatos.</p>
-    <p>Esta é a página inicial da sua agenda de contatos.</p>
+    <h1>Agenda de Contatos</h1>
+    <p>Bem-vindo ao seu sistema de gerenciamento de contatos.</p>
   </main>
 </template>
 

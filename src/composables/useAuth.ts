@@ -29,6 +29,9 @@ export function useAuth() {
     isAuthenticated.value = false
   }
 
+  // Verificar autenticação imediatamente
+  checkAuth()
+
   onMounted(() => {
     checkAuth()
   })

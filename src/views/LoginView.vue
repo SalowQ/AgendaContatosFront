@@ -14,6 +14,7 @@
             placeholder="Digite seu nome"
             required
             class="form-input"
+            @keyup.enter="handleLogin"
           />
         </div>
 
@@ -33,10 +34,11 @@ const { login } = useAuth()
 
 const username = ref('')
 
-const handleLogin = () => {
+const handleLogin = async () => {
   if (username.value.trim()) {
     login(username.value.trim())
-    router.push('/')
+    // Aguardar um tick para garantir que o estado foi atualizado
+    await router.push('/')
   }
 }
 </script>
