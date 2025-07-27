@@ -1,24 +1,36 @@
 <template>
-  <div class="login-container">
-    <div class="login-card">
-      <h1>Bem-vindo à Agenda de Contatos</h1>
-      <p>Por favor, insira seu nome para continuar:</p>
+  <div
+    class="flex justify-center items-center min-h-screen w-screen bg-gradient-to-br from-blue-500 to-purple-600 p-5 box-border fixed top-0 left-0 z-50"
+  >
+    <div class="bg-white p-8 sm:p-12 rounded-2xl shadow-2xl text-center max-w-md w-full mx-auto">
+      <h1 class="text-gray-800 mb-4 text-2xl sm:text-3xl font-semibold">
+        Bem-vindo à Agenda de Contatos
+      </h1>
+      <p class="text-gray-600 mb-9 text-base sm:text-lg leading-relaxed">
+        Por favor, insira seu nome para continuar:
+      </p>
 
-      <form @submit.prevent="handleLogin" class="login-form">
-        <div class="form-group">
-          <label for="username">Nome:</label>
+      <form @submit.prevent="handleLogin" class="flex flex-col gap-6">
+        <div class="flex flex-col text-left">
+          <label for="username" class="mb-2 text-gray-800 font-semibold text-base">Nome:</label>
           <input
             id="username"
             v-model="username"
             type="text"
             placeholder="Digite seu nome"
             required
-            class="form-input"
+            class="px-3 sm:px-4 py-3 border-2 border-gray-200 rounded-lg text-base text-gray-900 placeholder-gray-500 transition-all duration-300 bg-gray-50 focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100"
             @keyup.enter="handleLogin"
           />
         </div>
 
-        <button type="submit" class="login-button" :disabled="!username.trim()">Entrar</button>
+        <button
+          type="submit"
+          class="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-none py-3 px-6 sm:px-8 rounded-lg text-base sm:text-lg font-semibold cursor-pointer transition-all duration-300 mt-2 hover:not:disabled:transform hover:not:disabled:-translate-y-1 hover:not:disabled:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+          :disabled="!username.trim()"
+        >
+          Entrar
+        </button>
       </form>
     </div>
   </div>
@@ -41,148 +53,3 @@ const handleLogin = () => {
   }
 }
 </script>
-
-<style scoped>
-.login-container {
-  display: flex !important;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  width: 100vw;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-  box-sizing: border-box;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
-}
-
-.login-card {
-  background: white;
-  padding: 50px;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  text-align: center;
-  max-width: 450px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-.login-card h1 {
-  color: #333;
-  margin-bottom: 15px;
-  font-size: 28px;
-  font-weight: 600;
-}
-
-.login-card p {
-  color: #666;
-  margin-bottom: 35px;
-  font-size: 18px;
-  line-height: 1.5;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-}
-
-.form-group label {
-  margin-bottom: 10px;
-  color: #333;
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.form-input {
-  padding: 15px 18px;
-  border: 2px solid #e1e5e9;
-  border-radius: 10px;
-  font-size: 16px;
-  transition: all 0.3s ease;
-  background: #f8f9fa;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #667eea;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.login-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  padding: 15px 30px;
-  border-radius: 10px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-top: 10px;
-}
-
-.login-button:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-}
-
-.login-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-@media (max-width: 768px) {
-  .login-container {
-    padding: 15px;
-  }
-
-  .login-card {
-    padding: 40px 30px;
-    max-width: 100%;
-  }
-
-  .login-card h1 {
-    font-size: 24px;
-  }
-
-  .login-card p {
-    font-size: 16px;
-  }
-
-  .form-input {
-    padding: 12px 16px;
-    font-size: 16px;
-  }
-
-  .login-button {
-    padding: 12px 24px;
-    font-size: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .login-card {
-    padding: 30px 20px;
-  }
-
-  .login-card h1 {
-    font-size: 22px;
-  }
-
-  .login-card p {
-    font-size: 15px;
-  }
-}
-</style>
