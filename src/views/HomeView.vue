@@ -43,7 +43,7 @@ const formatarTelefone = (phone: string): string => {
   const numeros = phone.replace(/\D/g, '')
 
   // Verifica se tem exatamente 11 dígitos (DDD + número)
-  if (numeros.length === 11) {
+  if (numeros.length === 10 || numeros.length === 11) {
     const ddd = numeros.substring(0, 2)
     const numero = numeros.substring(2)
 

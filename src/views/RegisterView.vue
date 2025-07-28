@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-gray-50 py-8">
-    <div class="mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Header -->
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Cadastrar Novo Contato</h1>
-        <p class="text-gray-600">Preencha os dados do contato que deseja adicionar</p>
+  <div class="min-h-screen">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Header da Página -->
+      <div class="bg-white rounded-lg shadow-sm text-gray-900 p-4 !mb-6">
+        <h1 class="text-3xl font-bold mb-2">Cadastrar Novo Contato</h1>
+        <p>Preencha os dados do contato que deseja adicionar</p>
       </div>
 
       <!-- Formulário -->
@@ -186,8 +186,8 @@ const validarFormulario = (): boolean => {
   if (!phoneNumbers) {
     errors.phone = 'Telefone é obrigatório'
     isValid = false
-  } else if (phoneNumbers.length !== 11) {
-    errors.phone = 'Telefone deve ter exatamente 11 dígitos'
+  } else if (phoneNumbers.length !== 10) {
+    errors.phone = 'Telefone deve ter exatamente 10 dígitos'
     isValid = false
   }
 
