@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useContacts } from '@/composables/useContacts'
 import { useAuth } from '@/composables/useAuth'
 import { useModal, showError, type ErrorResponse } from '@/composables/useModal'
-import { deleteContato } from '@/api/contatos.js'
+import { deleteContato, updateContato } from '@/api/contatos.js'
+import ContactForm from '@/components/ContactForm.vue'
 
 interface Contato {
   id: number
@@ -15,6 +16,9 @@ interface Contato {
 const { contatos, error, carregarContatos } = useContacts()
 const { isAuthenticated } = useAuth()
 const { confirm, notify } = useModal()
+
+const showEditModal = ref(false)
+const contactToEdit = ref<Contato | null>(null)
 
 const contactsByLetter = computed(() => {
   const grouped: Record<string, typeof contatos.value> = contatos.value.reduce(
@@ -107,6 +111,56 @@ const excluirContato = async (contact: Contato) => {
       })
     }
   }
+}
+
+const editarContato = (contact: Contato) => {
+  contactToEdit.value = contact
+  showEditModal.value = true
+}
+
+const handleEditSubmit = async (contatoData: { name: string; phone: string; email: string }) => {
+  if (!contactToEdit.value) return
+
+  try {
+    const result = await updateContato(contactToEdit.value.id, contatoData)
+
+    if (result.success) {
+      await notify({
+        title: 'Contato Atualizado',
+        message: `O contato "${contactToEdit.value.name}" foi atualizado com sucesso!`,
+        type: 'success',
+        confirmText: 'OK',
+      })
+
+      showEditModal.value = false
+      contactToEdit.value = null
+      await carregarContatos()
+    } else {
+      if (result.error && typeof result.error === 'object' && 'errorMessages' in result.error) {
+        await showError(result.error as ErrorResponse, 'Erro ao atualizar contato')
+      } else {
+        await notify({
+          title: 'Erro ao Atualizar',
+          message: result.error || 'Erro ao atualizar contato',
+          type: 'error',
+          confirmText: 'OK',
+        })
+      }
+    }
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido'
+    await notify({
+      title: 'Erro ao Atualizar',
+      message: 'Ocorreu um erro inesperado ao atualizar o contato',
+      type: 'error',
+      items: [errorMessage],
+    })
+  }
+}
+
+const closeEditModal = () => {
+  showEditModal.value = false
+  contactToEdit.value = null
 }
 
 onMounted(() => {
@@ -210,6 +264,7 @@ onMounted(() => {
                       <button
                         class="p-1 text-gray-400 hover:text-blue-500 transition-colors"
                         title="Editar contato"
+                        @click="editarContato(contact)"
                       >
                         <span class="material-icons text-sm">edit</span>
                       </button>
@@ -232,6 +287,33 @@ onMounted(() => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div
+      v-if="showEditModal"
+      class="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">Editar Contato</h2>
+            <button
+              @click="closeEditModal"
+              class="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+
+          <ContactForm
+            v-if="contactToEdit"
+            :contact="contactToEdit"
+            :is-editing="true"
+            @submit="handleEditSubmit"
+          />
         </div>
       </div>
     </div>

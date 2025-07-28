@@ -67,3 +67,23 @@ export const deleteContato = async (id) => {
     1500, // 1.5 segundos para teste
   )
 }
+
+// Atualizar contato
+export const updateContato = async (id, contatoData) => {
+  return withLoading(
+    (async () => {
+      try {
+        const response = await httpClient.put(`/contacts/${id}`, contatoData)
+        return { success: true, data: response.data }
+      } catch (error) {
+        console.error('Erro ao atualizar contato:', error)
+        return {
+          success: false,
+          error: error.response?.data?.message || 'Erro ao atualizar contato',
+        }
+      }
+    })(),
+    'Atualizando contato...',
+    1500, // 1.5 segundos para teste
+  )
+}
