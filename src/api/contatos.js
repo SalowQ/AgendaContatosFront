@@ -19,12 +19,12 @@ export const getContatos = async () => {
         console.error('Erro ao buscar contatos:', error)
         return {
           success: false,
-          error: error.response?.data?.message || 'Erro ao buscar contatos'
+          error: error.response?.data?.message || 'Erro ao buscar contatos',
         }
       }
     })(),
     'Carregando contatos...',
-    1500 // 1.5 segundos para teste
+    1500, // 1.5 segundos para teste
   )
 }
 
@@ -39,12 +39,31 @@ export const createContato = async (contatoData) => {
         console.error('Erro ao criar contato:', error)
         return {
           success: false,
-          error: error.response?.data?.message || 'Erro ao criar contato'
+          error: error.response?.data?.message || 'Erro ao criar contato',
         }
       }
     })(),
     'Salvando contato...',
-    2000 // 2 segundos para teste
+    1500, // 1.5 segundos para teste
   )
 }
 
+// Excluir contato
+export const deleteContato = async (id) => {
+  return withLoading(
+    (async () => {
+      try {
+        await httpClient.delete(`/contacts/${id}`)
+        return { success: true }
+      } catch (error) {
+        console.error('Erro ao excluir contato:', error)
+        return {
+          success: false,
+          error: error.response?.data?.message || 'Erro ao excluir contato',
+        }
+      }
+    })(),
+    'Excluindo contato...',
+    1500, // 1.5 segundos para teste
+  )
+}

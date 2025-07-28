@@ -2,9 +2,19 @@
 import { computed, onMounted } from 'vue'
 import { useContacts } from '@/composables/useContacts'
 import { useAuth } from '@/composables/useAuth'
+import { useModal, showError, type ErrorResponse } from '@/composables/useModal'
+import { deleteContato } from '@/api/contatos.js'
+
+interface Contato {
+  id: number
+  name: string
+  phone: string
+  email: string
+}
 
 const { contatos, error, carregarContatos } = useContacts()
 const { isAuthenticated } = useAuth()
+const { confirm, notify } = useModal()
 
 // Organizar contatos por ordem alfabética
 const contactsByLetter = computed(() => {
@@ -62,6 +72,56 @@ const formatarTelefone = (phone: string): string => {
 
   // Retorna o número original se não conseguir formatar
   return phone
+}
+
+// Função para excluir contato
+const excluirContato = async (contact: Contato) => {
+  const confirmed = await confirm({
+    title: 'Confirmar Exclusão',
+    message: `Tem certeza que deseja excluir o contato "${contact.name}"?`,
+    type: 'warning',
+    confirmText: 'Excluir',
+    cancelText: 'Cancelar',
+  })
+
+  if (confirmed) {
+    try {
+      const result = await deleteContato(contact.id)
+
+      if (result.success) {
+        // Modal de sucesso
+        await notify({
+          title: 'Contato Excluído',
+          message: `O contato "${contact.name}" foi excluído com sucesso!`,
+          type: 'success',
+          confirmText: 'OK',
+        })
+
+        // Recarregar contatos
+        await carregarContatos()
+      } else {
+        // Verifica se o erro tem o formato ErrorResponse
+        if (result.error && typeof result.error === 'object' && 'errorMessages' in result.error) {
+          await showError(result.error as ErrorResponse, 'Erro ao excluir contato')
+        } else {
+          await notify({
+            title: 'Erro ao Excluir',
+            message: result.error || 'Erro ao excluir contato',
+            type: 'error',
+            confirmText: 'OK',
+          })
+        }
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido'
+      await notify({
+        title: 'Erro ao Excluir',
+        message: '',
+        type: 'error',
+        items: [errorMessage],
+      })
+    }
+  }
 }
 
 // Lifecycle
@@ -172,6 +232,7 @@ onMounted(() => {
                       <button
                         class="p-1 text-gray-400 hover:text-red-500 transition-colors"
                         title="Excluir contato"
+                        @click="excluirContato(contact)"
                       >
                         <span class="material-icons text-sm">delete</span>
                       </button>
