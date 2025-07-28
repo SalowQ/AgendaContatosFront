@@ -4,6 +4,10 @@ Este projeto é um sistema de gerenciamento de contatos implementado como uma ap
 
 ## 🌐 URLs
 
+### Produção
+
+- **Aplicação Online**: [https://agenda-contatos-front.vercel.app/](https://agenda-contatos-front.vercel.app/)
+
 ### Desenvolvimento
 
 - **Aplicação Principal**: `http://localhost:5173`
@@ -213,6 +217,46 @@ AgendaContatosFront/
 - **Logout**: Limpeza de dados e redirecionamento
 
 ## 🚀 Deploy
+
+### Deploy no Vercel
+
+Este projeto está configurado para deploy automático no Vercel. A aplicação está disponível em:
+
+**🌐 URL de Produção**: [https://agenda-contatos-front.vercel.app/](https://agenda-contatos-front.vercel.app/)
+
+### Configuração do Deploy
+
+O projeto inclui um arquivo `vercel.json` com a configuração mínima necessária para deploy de SPAs Vue.js:
+
+```json
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+```
+
+### Como Fazer Deploy
+
+1. **Conecte seu repositório ao Vercel**:
+
+   - Acesse [vercel.com](https://vercel.com)
+   - Importe seu repositório GitHub
+   - O Vercel detectará automaticamente que é um projeto Vue.js
+
+2. **Deploy Automático**:
+
+   - A cada push para a branch `main`, o Vercel fará deploy automático
+   - O build usa o comando `npm run build` definido no `package.json`
+
+3. **Deploy Manual** (se necessário):
+   ```bash
+   npm install -g vercel
+   vercel
+   ```
 
 ### Build de Produção
 
