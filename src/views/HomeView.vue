@@ -158,6 +158,23 @@ onMounted(() => {
                       <p class="text-xs text-gray-500 truncate">
                         {{ formatarTelefone(contact.phone) }}
                       </p>
+                      <p class="text-xs text-gray-500 truncate">
+                        {{ contact.email }}
+                      </p>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <button
+                        class="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+                        title="Editar contato"
+                      >
+                        <span class="material-icons text-sm">edit</span>
+                      </button>
+                      <button
+                        class="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                        title="Excluir contato"
+                      >
+                        <span class="material-icons text-sm">delete</span>
+                      </button>
                     </div>
                   </div>
                 </div>
