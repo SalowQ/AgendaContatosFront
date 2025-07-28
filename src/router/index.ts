@@ -17,10 +17,13 @@ const router = createRouter({
     {
       path: '/cadastro',
       name: 'cadastro',
-      // route level code-splitting
-      // this generates a separate chunk (Register.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/RegisterView.vue'),
+    },
+    // Rota 404 - deve ser a última para capturar apenas rotas não encontradas
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('../views/NotFoundView.vue'),
     },
   ],
 })

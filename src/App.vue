@@ -13,6 +13,7 @@ const route = useRoute()
 const { isLoading, loadingMessage } = useLoading()
 
 const isLoginPage = computed(() => route.name === 'login')
+const isNotFoundPage = computed(() => route.name === 'not-found')
 
 onMounted(() => {
   if (route.name) {
@@ -35,7 +36,7 @@ watch(
 watch(
   isAuthenticated,
   (newValue) => {
-    if (newValue && route.name !== 'login') {
+    if (newValue && route.name !== 'login' && route.name !== 'not-found') {
       router.push('/login')
     } else if (newValue && route.name === 'login') {
       router.push('/')
@@ -47,7 +48,12 @@ watch(
 watch(
   () => route.name,
   (newRouteName) => {
-    if (newRouteName && newRouteName !== 'login' && !isAuthenticated.value) {
+    if (
+      newRouteName &&
+      newRouteName !== 'login' &&
+      newRouteName !== 'not-found' &&
+      !isAuthenticated.value
+    ) {
       router.push('/login')
     }
   },
@@ -55,7 +61,10 @@ watch(
 </script>
 
 <template>
-  <div v-if="isAuthenticated" class="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600">
+  <div
+    v-if="isAuthenticated && !isNotFoundPage"
+    class="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600"
+  >
     <AppHeader />
     <main>
       <RouterView />

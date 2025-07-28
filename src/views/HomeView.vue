@@ -180,10 +180,13 @@ onMounted(() => {
       </div>
 
       <!-- Error -->
-      <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-        <div class="flex items-center">
+      <div
+        v-if="error"
+        class="bg-red-50 border border-red-200 rounded-lg p-4 !mt-6 flex justify-center"
+      >
+        <div class="flex items-center justify-center">
           <span class="material-icons text-red-500 mr-2">error</span>
-          <p class="text-red-700">{{ error }}</p>
+          <p class="text-red-700 text-center">{{ error }}</p>
         </div>
       </div>
 
