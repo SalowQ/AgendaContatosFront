@@ -2,7 +2,7 @@
   <header
     class="sticky top-0 z-50 border-b border-gray-200 shadow-sm backdrop-blur-sm bg-indigo-100"
   >
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <!-- Logo e Título -->
         <div class="flex items-center space-x-4 gap-2">
@@ -23,7 +23,7 @@
             v-for="item in menuItems"
             :key="item.label"
             @click="item.command"
-            class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium pr-2"
+            class="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 font-medium pr-2 gap-1"
           >
             <span class="material-icons text-lg">{{ item.icon }}</span>
             <span>{{ item.label }}</span>

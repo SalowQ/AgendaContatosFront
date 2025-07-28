@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
-import { useAuth } from '@/composables/useAuth'
 import { useContacts } from '@/composables/useContacts'
+import { useAuth } from '@/composables/useAuth'
 
-const { user } = useAuth()
 const { contatos, error, carregarContatos } = useContacts()
+const { isAuthenticated } = useAuth()
 
 // Organizar contatos por ordem alfabética
 const contactsByLetter = computed(() => {
@@ -66,15 +66,17 @@ const formatarTelefone = (phone: string): string => {
 
 // Lifecycle
 onMounted(() => {
-  carregarContatos()
+  if (isAuthenticated.value) {
+    carregarContatos()
+  }
 })
 </script>
 
 <template>
   <div class="min-h-screen">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header da Página -->
-      <div class="mb-8 text-gray-900">
+      <div class="bg-white rounded-lg shadow-sm text-gray-900 p-4">
         <h1 class="text-3xl font-bold mb-2">Agenda de Contatos</h1>
         <p>Visualize e gerencie seus contatos organizados alfabeticamente</p>
       </div>
@@ -88,7 +90,7 @@ onMounted(() => {
       </div>
 
       <!-- Estatísticas -->
-      <div v-if="!error" class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6">
+      <div v-if="!error" class="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
         <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
           <div class="flex items-center">
             <span class="material-icons text-blue-500 !text-5xl mr-3">people</span>
@@ -148,7 +150,7 @@ onMounted(() => {
                       class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center"
                     >
                       <span class="text-white text-sm font-semibold">{{
-                        contact.name.charAt(0)
+                        contact.name.charAt(0).toUpperCase()
                       }}</span>
                     </div>
                     <div class="flex-1 min-w-0">

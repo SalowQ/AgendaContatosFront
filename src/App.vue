@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterView } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
 import { useRouter, useRoute } from 'vue-router'
 import { watch, computed, onMounted } from 'vue'
-import Header from '@/components/Header.vue'
+import AppHeader from '@/components/AppHeader.vue'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import { useLoading } from '@/composables/useLoading'
 
@@ -56,8 +56,8 @@ watch(
 
 <template>
   <div v-if="isAuthenticated" class="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600">
-    <Header />
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <AppHeader />
+    <main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <RouterView />
     </main>
   </div>
