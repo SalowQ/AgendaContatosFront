@@ -12,7 +12,7 @@ const router = useRouter()
 const route = useRoute()
 const { isLoading, loadingMessage } = useLoading()
 
-const isLoginPage = computed(() => route.name === 'login')
+// const isLoginPage = computed(() => route.name === 'login')
 const isNotFoundPage = computed(() => route.name === 'not-found')
 
 onMounted(() => {
@@ -71,7 +71,7 @@ watch(
     </main>
   </div>
 
-  <div v-else class="min-h-screen" :class="{ 'login-page': isLoginPage }">
+  <div v-else class="min-h-screen">
     <RouterView />
   </div>
 
