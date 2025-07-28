@@ -57,7 +57,7 @@ watch(
 <template>
   <div v-if="isAuthenticated" class="min-h-screen bg-gradient-to-br from-blue-500 to-purple-600">
     <AppHeader />
-    <main class="mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main>
       <RouterView />
     </main>
   </div>

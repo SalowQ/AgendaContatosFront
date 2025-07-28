@@ -92,7 +92,7 @@ onMounted(() => {
       <!-- Estatísticas -->
       <div v-if="!error" class="grid grid-cols-1 md:grid-cols-2 gap-6 py-6">
         <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-          <div class="flex items-center">
+          <div class="flex items-center gap-2">
             <span class="material-icons text-blue-500 !text-5xl mr-3">people</span>
             <div>
               <p class="text-sm font-medium text-gray-600">Total de Contatos</p>
@@ -102,7 +102,7 @@ onMounted(() => {
         </div>
 
         <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-          <div class="flex items-center">
+          <div class="flex items-center gap-2">
             <span class="material-icons text-green-500 !text-5xl mr-3">category</span>
             <div>
               <p class="text-sm font-medium text-gray-600">Letras Utilizadas</p>
