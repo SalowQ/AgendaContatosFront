@@ -109,9 +109,11 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useContacts } from '@/composables/useContacts'
+import { useModal } from '@/composables/useModal'
 
 const router = useRouter()
 const { adicionarContato } = useContacts()
+const { notify } = useModal()
 
 // Estados
 const successMessage = ref('')
@@ -238,16 +240,31 @@ const handleSubmit = async () => {
     const result = await adicionarContato(contatoData)
 
     if (result.success) {
-      successMessage.value = 'Contato cadastrado com sucesso!'
+      notify({
+        title: 'Sucesso!',
+        message: 'Dados salvos com sucesso.',
+        type: 'success',
+        confirmText: 'Ok',
+      })
       limparFormulario()
 
       router.push('/')
     } else {
-      errorMessage.value = result.error || 'Erro ao cadastrar contato'
+      notify({
+        title: 'Erro',
+        message: 'Falha ao salvar os dados.',
+        type: 'error',
+        items: [result.error || ''],
+      })
     }
   } catch (err) {
     console.error('Erro ao cadastrar contato:', err)
-    errorMessage.value = 'Erro ao cadastrar contato. Tente novamente.'
+    notify({
+      title: 'Erro',
+      message: '',
+      type: 'error',
+      items: [err instanceof Error ? err.message : 'Erro desconhecido'],
+    })
   }
 }
 </script>
