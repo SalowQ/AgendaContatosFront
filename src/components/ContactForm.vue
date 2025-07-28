@@ -163,8 +163,8 @@ const validarFormulario = (): boolean => {
   if (!phoneNumbers) {
     errors.phone = 'Telefone é obrigatório'
     isValid = false
-  } else if (phoneNumbers.length !== 10) {
-    errors.phone = 'Telefone deve ter exatamente 10 dígitos'
+  } else if (phoneNumbers.length < 10 || phoneNumbers.length > 11) {
+    errors.phone = 'Telefone deve ter no mínimo 10 e no máximo 11 dígitos'
     isValid = false
   }
 
