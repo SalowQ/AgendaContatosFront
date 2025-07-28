@@ -16,7 +16,6 @@ const { contatos, error, carregarContatos } = useContacts()
 const { isAuthenticated } = useAuth()
 const { confirm, notify } = useModal()
 
-// Organizar contatos por ordem alfabética
 const contactsByLetter = computed(() => {
   const grouped: Record<string, typeof contatos.value> = contatos.value.reduce(
     (acc: Record<string, typeof contatos.value>, contact) => {
@@ -30,7 +29,6 @@ const contactsByLetter = computed(() => {
     {},
   )
 
-  // Ordenar as letras e os contatos dentro de cada letra
   return Object.keys(grouped)
     .sort()
     .reduce(
@@ -42,39 +40,29 @@ const contactsByLetter = computed(() => {
     )
 })
 
-// Todas as letras do alfabeto para mostrar seções vazias
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
-// Função para formatar número de telefone
 const formatarTelefone = (phone: string): string => {
   if (!phone) return ''
 
-  // Remove caracteres não numéricos
   const numeros = phone.replace(/\D/g, '')
 
-  // Verifica se tem exatamente 11 dígitos (DDD + número)
   if (numeros.length === 10 || numeros.length === 11) {
     const ddd = numeros.substring(0, 2)
     const numero = numeros.substring(2)
 
-    // Formata baseado no tamanho do número
     if (numero.length === 8) {
-      // (11) 1234-5678
       return `(${ddd}) ${numero.substring(0, 4)}-${numero.substring(4)}`
     } else if (numero.length === 9) {
-      // (11) 12345-6789
       return `(${ddd}) ${numero.substring(0, 5)}-${numero.substring(5)}`
     } else {
-      // Formato genérico se não se encaixar nos padrões
       return `(${ddd}) ${numero}`
     }
   }
 
-  // Retorna o número original se não conseguir formatar
   return phone
 }
 
-// Função para excluir contato
 const excluirContato = async (contact: Contato) => {
   const confirmed = await confirm({
     title: 'Confirmar Exclusão',
@@ -89,7 +77,6 @@ const excluirContato = async (contact: Contato) => {
       const result = await deleteContato(contact.id)
 
       if (result.success) {
-        // Modal de sucesso
         await notify({
           title: 'Contato Excluído',
           message: `O contato "${contact.name}" foi excluído com sucesso!`,
@@ -97,10 +84,8 @@ const excluirContato = async (contact: Contato) => {
           confirmText: 'OK',
         })
 
-        // Recarregar contatos
         await carregarContatos()
       } else {
-        // Verifica se o erro tem o formato ErrorResponse
         if (result.error && typeof result.error === 'object' && 'errorMessages' in result.error) {
           await showError(result.error as ErrorResponse, 'Erro ao excluir contato')
         } else {
@@ -116,7 +101,7 @@ const excluirContato = async (contact: Contato) => {
       const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido'
       await notify({
         title: 'Erro ao Excluir',
-        message: '',
+        message: 'Ocorreu um erro inesperado ao excluir o contato',
         type: 'error',
         items: [errorMessage],
       })
@@ -124,7 +109,6 @@ const excluirContato = async (contact: Contato) => {
   }
 }
 
-// Lifecycle
 onMounted(() => {
   if (isAuthenticated.value) {
     carregarContatos()
