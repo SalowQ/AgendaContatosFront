@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { useAuth } from '@/composables/useAuth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,6 +9,7 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/login',
@@ -18,6 +20,7 @@ const router = createRouter({
       path: '/cadastro',
       name: 'cadastro',
       component: () => import('../views/RegisterView.vue'),
+      meta: { requiresAuth: true },
     },
     // Rota 404 - deve ser a última para capturar apenas rotas não encontradas
     {
@@ -26,6 +29,18 @@ const router = createRouter({
       component: () => import('../views/NotFoundView.vue'),
     },
   ],
+})
+
+router.beforeEach((to, from, next) => {
+  const loggedIn = useAuth().isAuthenticated.value
+
+  if (to.meta.requiresAuth && !loggedIn) {
+    next('/login')
+  } else if (to.name === 'login' && loggedIn) {
+    next('/')
+  } else {
+    next()
+  }
 })
 
 export default router
