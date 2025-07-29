@@ -37,22 +37,25 @@
           />
         </div>
 
-        <!-- Mensagem de erro -->
-        <div
-          v-if="error"
-          class="text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-200"
-        >
-          {{ error }}
-        </div>
-
         <button
           type="submit"
           class="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-none py-3 px-6 sm:px-8 rounded-lg text-base sm:text-lg font-semibold cursor-pointer transition-all duration-300 mt-2 hover:not:disabled:transform hover:not:disabled:-translate-y-1 hover:not:disabled:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
-          :disabled="!email.trim() || !password.trim() || isLoading"
+          :disabled="!email.trim() || !password.trim()"
         >
-          <span v-if="isLoading">Entrando...</span>
-          <span v-else>Entrar</span>
+          Entrar
         </button>
+
+        <div class="text-center mt-4">
+          <p class="text-gray-600 text-sm">
+            Não tem uma conta?
+            <router-link
+              to="/signup"
+              class="text-blue-600 hover:text-blue-700 font-semibold transition-colors"
+            >
+              Criar conta
+            </router-link>
+          </p>
+        </div>
       </form>
     </div>
   </div>
@@ -62,18 +65,43 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/composables/useAuth'
+import { useLoading } from '@/composables/useLoading'
+import { useModal } from '@/composables/useModal'
 
 const router = useRouter()
-const { login, isLoading, error } = useAuth()
+const { login } = useAuth()
+const { withLoading } = useLoading()
+const { notify } = useModal()
 
 const email = ref('')
 const password = ref('')
 
 const handleLogin = async () => {
   if (email.value.trim() && password.value.trim()) {
-    const result = await login(email.value.trim(), password.value.trim())
-    if (result.success) {
-      router.push('/')
+    try {
+      const result = await withLoading(
+        login(email.value.trim(), password.value.trim()),
+        'Entrando...',
+      )
+
+      if (result.success) {
+        router.push('/')
+      } else {
+        await notify({
+          title: 'Erro no Login',
+          message: result.error || 'Credenciais inválidas',
+          type: 'error',
+          confirmText: 'OK',
+        })
+      }
+    } catch (err) {
+      console.error('Erro no login:', err)
+      await notify({
+        title: 'Erro',
+        message: 'Erro inesperado ao fazer login',
+        type: 'error',
+        confirmText: 'OK',
+      })
     }
   }
 }

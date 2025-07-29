@@ -8,7 +8,6 @@ let authInstance: ReturnType<typeof createAuth> | null = null
 function createAuth() {
   const user = ref<string | null>(null)
   const isAuthenticated = ref(false)
-  const isLoading = ref(false)
   const error = ref<string | null>(null)
 
   const checkAuth = () => {
@@ -23,7 +22,6 @@ function createAuth() {
   }
 
   const login = async (email: string, password: string) => {
-    isLoading.value = true
     error.value = null
 
     try {
@@ -40,8 +38,6 @@ function createAuth() {
     } catch (err) {
       error.value = 'Erro inesperado ao fazer login'
       return { success: false, error: 'Erro inesperado ao fazer login' }
-    } finally {
-      isLoading.value = false
     }
   }
 
@@ -57,7 +53,6 @@ function createAuth() {
   return {
     user,
     isAuthenticated,
-    isLoading,
     error,
     login,
     logout,
