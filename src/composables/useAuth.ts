@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { login as apiLogin, logout as apiLogout, checkAuth as apiCheckAuth } from '@/api/auth.js'
 
 const USER_STORAGE_KEY = 'usuarioagendacontato'
 
@@ -7,11 +8,13 @@ let authInstance: ReturnType<typeof createAuth> | null = null
 function createAuth() {
   const user = ref<string | null>(null)
   const isAuthenticated = ref(false)
+  const isLoading = ref(false)
+  const error = ref<string | null>(null)
 
   const checkAuth = () => {
-    const storedUser = localStorage.getItem(USER_STORAGE_KEY)
-    if (storedUser && storedUser.trim()) {
-      user.value = storedUser
+    const authResult = apiCheckAuth()
+    if (authResult.isAuthenticated) {
+      user.value = authResult.user?.username || null
       isAuthenticated.value = true
     } else {
       user.value = null
@@ -19,19 +22,34 @@ function createAuth() {
     }
   }
 
-  const login = (username: string) => {
-    const cleanUsername = username.trim()
-    if (cleanUsername) {
-      localStorage.setItem(USER_STORAGE_KEY, cleanUsername)
-      user.value = cleanUsername
-      isAuthenticated.value = true
+  const login = async (email: string, password: string) => {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const result = await apiLogin(email, password)
+
+      if (result.success) {
+        user.value = result.user?.username || email
+        isAuthenticated.value = true
+        return { success: true }
+      } else {
+        error.value = result.error || 'Erro ao fazer login'
+        return { success: false, error: result.error }
+      }
+    } catch (err) {
+      error.value = 'Erro inesperado ao fazer login'
+      return { success: false, error: 'Erro inesperado ao fazer login' }
+    } finally {
+      isLoading.value = false
     }
   }
 
   const logout = () => {
-    localStorage.removeItem(USER_STORAGE_KEY)
+    apiLogout()
     user.value = null
     isAuthenticated.value = false
+    error.value = null
   }
 
   checkAuth()
@@ -39,6 +57,8 @@ function createAuth() {
   return {
     user,
     isAuthenticated,
+    isLoading,
+    error,
     login,
     logout,
     checkAuth,
