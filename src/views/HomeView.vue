@@ -31,13 +31,17 @@ const contactsByLetter = computed(() => {
   }
 
   const contatosArray = [...contatos.value]
+
   const grouped: Record<string, Contato[]> = contatosArray.reduce(
     (acc: Record<string, Contato[]>, contact) => {
-      const firstLetter = contact.name.charAt(0).toUpperCase()
-      if (!acc[firstLetter]) {
-        acc[firstLetter] = []
+      if (typeof contact.name === 'string' && contact.name.trim()) {
+        const firstLetter = contact.name.trim().charAt(0).toUpperCase()
+        if (!acc[firstLetter]) {
+          acc[firstLetter] = []
+        }
+        acc[firstLetter].push(contact)
       }
-      acc[firstLetter].push(contact)
+
       return acc
     },
     {},
@@ -141,6 +145,7 @@ const handleEditSubmit = async (contatoData: { name: string; phone: string; emai
 
       showEditModal.value = false
       contactToEdit.value = null
+      await carregarContatos()
     } else {
       if (result.error && typeof result.error === 'object' && 'errorMessages' in result.error) {
         await showError(result.error as ErrorResponse, 'Erro ao atualizar contato')

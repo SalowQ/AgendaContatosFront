@@ -93,7 +93,10 @@ export function useContacts() {
 
       if (response.success) {
         contatos.value.push(response.data!)
-        contatos.value.sort((a, b) => a.name.localeCompare(b.name))
+        contatos.value.sort((a, b) => {
+          if (!a.name || !b.name) return 0
+          return a.name.localeCompare(b.name)
+        })
         return { success: true }
       } else {
         if (
@@ -154,7 +157,10 @@ export function useContacts() {
         const index = contatos.value.findIndex((contato) => contato.id === id)
         if (index !== -1) {
           contatos.value[index] = { ...response.data!, id }
-          contatos.value.sort((a, b) => a.name.localeCompare(b.name))
+          contatos.value.sort((a, b) => {
+            if (!a.name || !b.name) return 0
+            return a.name.localeCompare(b.name)
+          })
         }
         return { success: true }
       } else {
@@ -177,7 +183,10 @@ export function useContacts() {
   }
 
   const contatosOrdenados = computed(() => {
-    return [...contatos.value].sort((a, b) => a.name.localeCompare(b.name))
+    return [...contatos.value].sort((a, b) => {
+      if (!a.name || !b.name) return 0
+      return a.name.localeCompare(b.name)
+    })
   })
 
   return {
