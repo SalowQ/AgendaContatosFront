@@ -1,32 +1,31 @@
-interface Contato {
-  id: number
-  name: string
-  phone: string
-  email: string
-}
+declare module '@/api/contatos.js' {
+  export interface Contato {
+    id: string
+    name: string
+    phone: string
+    email: string
+  }
 
-interface APIResponse {
-  contacts: Contato[]
-}
+  export interface ContatosResponse {
+    success: boolean
+    data?: Contato[]
+    error?: string
+  }
 
-interface APIResponse<T> {
-  success: boolean
-  data?: T
-  error?: string
-}
+  export interface ContatoResponse {
+    success: boolean
+    data?: Contato
+    error?: string
+  }
 
-export declare function getContatos(): Promise<APIResponse<APIResponse>>
-export declare function createContato(
-  contatoData: Omit<Contato, 'id'>,
-): Promise<APIResponse<Contato>>
-export declare function getContatoById(id: number): Promise<APIResponse<Contato>>
-export declare function updateContato(
-  id: number,
-  contatoData: Partial<Contato>,
-): Promise<APIResponse<Contato>>
-export declare function deleteContato(id: number): Promise<APIResponse<void>>
-export declare function searchContatos(query: string): Promise<APIResponse<Contato[]>>
-export declare function getContatosByLetter(letter: string): Promise<APIResponse<Contato[]>>
-export declare function getContatosStats(): Promise<APIResponse<any>>
-export declare function importContatos(contatosData: any): Promise<APIResponse<any>>
-export declare function exportContatos(): Promise<APIResponse<Blob>>
+  export interface ContatoInput {
+    name: string
+    phone: string
+    email: string
+  }
+
+  export function listarContatos(): Promise<ContatosResponse>
+  export function criarContato(contato: ContatoInput): Promise<ContatoResponse>
+  export function excluirContato(id: string): Promise<{ success: boolean; error?: string }>
+  export function atualizarContato(id: string, contato: ContatoInput): Promise<ContatoResponse>
+}

@@ -17,12 +17,15 @@ const router = createRouter({
       component: () => import('../views/LoginView.vue'),
     },
     {
+      path: '/signup',
+      name: 'signup',
+      component: () => import('../views/SignUpView.vue'),
+    },
+    {
       path: '/cadastro',
       name: 'cadastro',
       component: () => import('../views/RegisterView.vue'),
-      meta: { requiresAuth: true },
     },
-    // Rota 404 - deve ser a última para capturar apenas rotas não encontradas
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',

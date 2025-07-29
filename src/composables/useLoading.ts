@@ -16,7 +16,7 @@ export const useLoading = () => {
   const withLoading = async <T>(
     promise: Promise<T>,
     message = 'Carregando...',
-    minDuration = 1000, // Tempo mínimo de 1 segundo para teste
+    minDuration = 1000,
   ): Promise<T> => {
     const startTime = Date.now()
 
@@ -24,7 +24,6 @@ export const useLoading = () => {
       showLoading(message)
       const result = await promise
 
-      // Garantir tempo mínimo de exibição
       const elapsedTime = Date.now() - startTime
       if (elapsedTime < minDuration) {
         await new Promise((resolve) => setTimeout(resolve, minDuration - elapsedTime))

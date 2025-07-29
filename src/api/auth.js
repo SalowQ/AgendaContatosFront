@@ -1,13 +1,10 @@
 import httpClient from './httpClient.js'
 
-// Função para fazer logout (limpa dados locais)
 export const logout = () => {
-  // Limpar dados locais
   localStorage.removeItem('auth_token')
   localStorage.removeItem('usuarioagendacontato')
 }
 
-// Função para verificar se o usuário está autenticado (baseado em dados locais)
 export const checkAuth = () => {
   const token = localStorage.getItem('auth_token')
   const user = localStorage.getItem('usuarioagendacontato')
@@ -22,25 +19,137 @@ export const checkAuth = () => {
   return { isAuthenticated: false }
 }
 
-// Função para fazer login (versão simplificada para desenvolvimento)
-export const login = async (username) => {
+export const login = async (email, password) => {
   try {
-    // Simular login bem-sucedido
-    const token = 'dev-token-' + Date.now()
+    const response = await httpClient.post('/login', {
+      email: email,
+      password: password
+    })
 
-    // Salvar dados locais
-    localStorage.setItem('auth_token', token)
-    localStorage.setItem('usuarioagendacontato', username)
+    if (response.data) {
+      const { name, token } = response.data
 
-    return {
-      success: true,
-      user: { username }
+      if (token) {
+        localStorage.setItem('auth_token', token)
+      }
+
+      if (name) {
+        localStorage.setItem('usuarioagendacontato', name)
+      }
+
+      return {
+        success: true,
+        user: {
+          username: name || email,
+          email: email
+        }
+      }
     }
-  } catch (error) {
-    console.error('Erro no login:', error)
+
     return {
       success: false,
-      error: 'Erro ao fazer login'
+      error: 'Resposta inválida do servidor'
+    }
+  } catch (error) {
+
+    if (error.response) {
+      const responseData = error.response.data
+      let errorMessage = 'Credenciais inválidas'
+
+      if (responseData) {
+        if (responseData.errorMessages && Array.isArray(responseData.errorMessages)) {
+          errorMessage = responseData.errorMessages[0] || errorMessage
+        } else if (Array.isArray(responseData)) {
+          errorMessage = responseData[0] || errorMessage
+        } else if (typeof responseData === 'string') {
+          errorMessage = responseData
+        } else if (responseData.message) {
+          errorMessage = responseData.message
+        } else if (responseData.error) {
+          errorMessage = responseData.error
+        } else if (responseData.errors) {
+          errorMessage = Array.isArray(responseData.errors)
+            ? responseData.errors[0]
+            : responseData.errors
+        }
+      }
+
+      return {
+        success: false,
+        error: errorMessage
+      }
+    } else if (error.request) {
+      return {
+        success: false,
+        error: 'Erro de conexão. Verifique sua internet.'
+      }
+    } else {
+      return {
+        success: false,
+        error: 'Erro ao fazer login'
+      }
+    }
+  }
+}
+
+export const register = async (name, email, password, confirmPassword) => {
+  try {
+    const response = await httpClient.post('/user', {
+      name: name,
+      email: email,
+      password: password,
+      confirmPassword: confirmPassword
+    })
+
+    if (response.data) {
+      return {
+        success: true,
+        message: 'Usuário cadastrado com sucesso!'
+      }
+    }
+
+    return {
+      success: false,
+      error: 'Resposta inválida do servidor'
+    }
+  } catch (error) {
+
+    if (error.response) {
+      const responseData = error.response.data
+      let errorMessage = 'Erro ao cadastrar usuário'
+
+      if (responseData) {
+        if (responseData.errorMessages && Array.isArray(responseData.errorMessages)) {
+          errorMessage = responseData.errorMessages[0] || errorMessage
+        } else if (Array.isArray(responseData)) {
+          errorMessage = responseData[0] || errorMessage
+        } else if (typeof responseData === 'string') {
+          errorMessage = responseData
+        } else if (responseData.message) {
+          errorMessage = responseData.message
+        } else if (responseData.error) {
+          errorMessage = responseData.error
+        } else if (responseData.errors) {
+          errorMessage = Array.isArray(responseData.errors)
+            ? responseData.errors[0]
+            : responseData.errors
+        }
+      }
+
+      return {
+        success: false,
+        error: errorMessage
+      }
+    } else if (error.request) {
+      return {
+        success: false,
+        error: 'Erro de conexão. Verifique sua internet.'
+      }
+    } else {
+      return {
+        success: false,
+        error: 'Erro ao cadastrar usuário'
+      }
     }
   }
 } 

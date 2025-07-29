@@ -69,7 +69,6 @@ const handleSubmit = async (contatoData: { name: string; phone: string; email: s
       })
     }
   } catch (err) {
-    console.error('Erro ao cadastrar contato:', err)
     notify({
       title: 'Erro',
       message: '',
