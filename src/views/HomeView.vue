@@ -3,17 +3,21 @@ import { computed, onMounted, ref } from 'vue'
 import { useContacts } from '@/composables/useContacts'
 import { useAuth } from '@/composables/useAuth'
 import { useModal, showError, type ErrorResponse } from '@/composables/useModal'
-import { deleteContato, updateContato } from '@/api/contatos.js'
 import ContactForm from '@/components/ContactForm.vue'
 
 interface Contato {
-  id: number
+  id: string
   name: string
   phone: string
   email: string
 }
 
-const { contatos, error, carregarContatos } = useContacts()
+interface ApiResult {
+  success: boolean
+  error?: string | object
+}
+
+const { contatos, error, carregarContatos, removerContato, editarContato } = useContacts()
 const { isAuthenticated } = useAuth()
 const { confirm, notify } = useModal()
 
@@ -21,8 +25,14 @@ const showEditModal = ref(false)
 const contactToEdit = ref<Contato | null>(null)
 
 const contactsByLetter = computed(() => {
-  const grouped: Record<string, typeof contatos.value> = contatos.value.reduce(
-    (acc: Record<string, typeof contatos.value>, contact) => {
+  // Ensure contatos.value is an array
+  if (!Array.isArray(contatos.value)) {
+    return {}
+  }
+
+  const contatosArray = [...contatos.value]
+  const grouped: Record<string, Contato[]> = contatosArray.reduce(
+    (acc: Record<string, Contato[]>, contact) => {
       const firstLetter = contact.name.charAt(0).toUpperCase()
       if (!acc[firstLetter]) {
         acc[firstLetter] = []
@@ -37,10 +47,10 @@ const contactsByLetter = computed(() => {
     .sort()
     .reduce(
       (acc, letter) => {
-        acc[letter] = grouped[letter].sort((a, b) => a.name.localeCompare(b.name))
+        acc[letter] = grouped[letter].sort((a: Contato, b: Contato) => a.name.localeCompare(b.name))
         return acc
       },
-      {} as Record<string, typeof contatos.value>,
+      {} as Record<string, Contato[]>,
     )
 })
 
@@ -78,7 +88,7 @@ const excluirContato = async (contact: Contato) => {
 
   if (confirmed) {
     try {
-      const result = await deleteContato(contact.id)
+      const result = (await removerContato(contact.id)) as ApiResult
 
       if (result.success) {
         await notify({
@@ -87,33 +97,30 @@ const excluirContato = async (contact: Contato) => {
           type: 'success',
           confirmText: 'OK',
         })
-
-        await carregarContatos()
       } else {
         if (result.error && typeof result.error === 'object' && 'errorMessages' in result.error) {
           await showError(result.error as ErrorResponse, 'Erro ao excluir contato')
         } else {
           await notify({
             title: 'Erro ao Excluir',
-            message: result.error || 'Erro ao excluir contato',
+            message: typeof result.error === 'string' ? result.error : 'Erro ao excluir contato',
             type: 'error',
             confirmText: 'OK',
           })
         }
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido'
       await notify({
-        title: 'Erro ao Excluir',
-        message: 'Ocorreu um erro inesperado ao excluir o contato',
+        title: 'Erro',
+        message: 'Erro inesperado ao excluir contato',
         type: 'error',
-        items: [errorMessage],
+        confirmText: 'OK',
       })
     }
   }
 }
 
-const editarContato = (contact: Contato) => {
+const abrirModalEdicao = (contact: Contato) => {
   contactToEdit.value = contact
   showEditModal.value = true
 }
@@ -122,7 +129,7 @@ const handleEditSubmit = async (contatoData: { name: string; phone: string; emai
   if (!contactToEdit.value) return
 
   try {
-    const result = await updateContato(contactToEdit.value.id, contatoData)
+    const result = (await editarContato(contactToEdit.value.id, contatoData)) as ApiResult
 
     if (result.success) {
       await notify({
@@ -134,26 +141,24 @@ const handleEditSubmit = async (contatoData: { name: string; phone: string; emai
 
       showEditModal.value = false
       contactToEdit.value = null
-      await carregarContatos()
     } else {
       if (result.error && typeof result.error === 'object' && 'errorMessages' in result.error) {
         await showError(result.error as ErrorResponse, 'Erro ao atualizar contato')
       } else {
         await notify({
           title: 'Erro ao Atualizar',
-          message: result.error || 'Erro ao atualizar contato',
+          message: typeof result.error === 'string' ? result.error : 'Erro ao atualizar contato',
           type: 'error',
           confirmText: 'OK',
         })
       }
     }
   } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido'
     await notify({
-      title: 'Erro ao Atualizar',
-      message: 'Ocorreu um erro inesperado ao atualizar o contato',
+      title: 'Erro',
+      message: 'Erro inesperado ao atualizar contato',
       type: 'error',
-      items: [errorMessage],
+      confirmText: 'OK',
     })
   }
 }
@@ -197,7 +202,9 @@ onMounted(() => {
             <span class="material-icons text-blue-500 !text-5xl mr-3">people</span>
             <div>
               <p class="text-sm font-medium text-gray-600">Total de Contatos</p>
-              <p class="text-2xl font-bold text-gray-900">{{ contatos.length }}</p>
+              <p class="text-2xl font-bold text-gray-900">
+                {{ Array.isArray(contatos) ? contatos.length : 0 }}
+              </p>
             </div>
           </div>
         </div>
@@ -267,7 +274,7 @@ onMounted(() => {
                       <button
                         class="p-1 text-gray-400 hover:text-blue-500 transition-colors"
                         title="Editar contato"
-                        @click="editarContato(contact)"
+                        @click="abrirModalEdicao(contact)"
                       >
                         <span class="material-icons text-sm">edit</span>
                       </button>

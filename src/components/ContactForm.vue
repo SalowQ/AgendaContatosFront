@@ -115,6 +115,10 @@ const handlePhoneInput = (event: Event) => {
   phoneError.value = ''
 }
 
+const isEditing = computed(() => {
+  return !!props.contact
+})
+
 const isFormValid = computed(() => {
   return (
     name.value.trim() &&

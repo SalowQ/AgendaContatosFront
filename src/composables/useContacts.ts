@@ -1,36 +1,68 @@
 import { ref, computed, readonly } from 'vue'
-import { listarContatos, criarContato, excluirContato, atualizarContato } from '@/api/contatos'
+import { listarContatos, criarContato, excluirContato, atualizarContato } from '@/api/contatos.js'
 import { showError } from '@/composables/useModal'
+import { useLoading } from '@/composables/useLoading'
 
-export interface Contato {
+interface Contato {
   id: string
   name: string
   phone: string
   email: string
 }
 
-export interface ContatosResponse {
+interface ContatosResponse {
   success: boolean
-  data?: Contato[]
+  data?: Contato[] | { data?: Contato[]; contacts?: Contato[]; items?: Contato[] }
   error?: string
 }
 
-export interface ContatoResponse {
+interface ContatoResponse {
   success: boolean
   data?: Contato
   error?: string
+}
+
+interface ContatoInput {
+  name: string
+  phone: string
+  email: string
 }
 
 export function useContacts() {
   const contatos = ref<Contato[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+  const { withLoading } = useLoading()
 
   const carregarContatos = async () => {
     try {
-      const response = await listarContatos()
+      const response = (await withLoading(
+        listarContatos(),
+        'Carregando contatos...',
+      )) as ContatosResponse
+
       if (response.success) {
-        contatos.value = response.data || []
+        // Ensure response.data is an array
+        if (Array.isArray(response.data)) {
+          contatos.value = response.data
+        } else if (response.data && typeof response.data === 'object' && response.data !== null) {
+          // If response.data is an object, try to extract array from it
+          const dataObj = response.data as {
+            data?: Contato[]
+            contacts?: Contato[]
+            items?: Contato[]
+          }
+          const dataArray = Array.isArray(dataObj.data)
+            ? dataObj.data
+            : Array.isArray(dataObj.contacts)
+              ? dataObj.contacts
+              : Array.isArray(dataObj.items)
+                ? dataObj.items
+                : []
+          contatos.value = dataArray
+        } else {
+          contatos.value = []
+        }
       } else {
         if (
           response.error &&
@@ -41,16 +73,24 @@ export function useContacts() {
         } else {
           error.value = response.error || 'Erro ao carregar contatos'
         }
+        // Ensure contatos is always an array even on error
+        contatos.value = []
       }
     } catch (err) {
       console.error('Erro ao carregar contatos:', err)
       error.value = 'Erro inesperado ao carregar contatos'
+      // Ensure contatos is always an array even on error
+      contatos.value = []
     }
   }
 
-  const adicionarContato = async (contatoData: Omit<Contato, 'id'>) => {
+  const adicionarContato = async (contatoData: ContatoInput) => {
     try {
-      const response = await criarContato(contatoData)
+      const response = (await withLoading(
+        criarContato(contatoData),
+        'Salvando contato...',
+      )) as ContatoResponse
+
       if (response.success) {
         contatos.value.push(response.data!)
         contatos.value.sort((a, b) => a.name.localeCompare(b.name))
@@ -76,7 +116,11 @@ export function useContacts() {
 
   const removerContato = async (id: string) => {
     try {
-      const response = await excluirContato(id)
+      const response = (await withLoading(excluirContato(id), 'Excluindo contato...')) as {
+        success: boolean
+        error?: string
+      }
+
       if (response.success) {
         contatos.value = contatos.value.filter((contato) => contato.id !== id)
         return { success: true }
@@ -99,9 +143,13 @@ export function useContacts() {
     }
   }
 
-  const editarContato = async (id: string, contatoData: Omit<Contato, 'id'>) => {
+  const editarContato = async (id: string, contatoData: ContatoInput) => {
     try {
-      const response = await atualizarContato(id, contatoData)
+      const response = (await withLoading(
+        atualizarContato(id, contatoData),
+        'Atualizando contato...',
+      )) as ContatoResponse
+
       if (response.success) {
         const index = contatos.value.findIndex((contato) => contato.id === id)
         if (index !== -1) {

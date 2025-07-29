@@ -1,30 +1,53 @@
 import httpClient from './httpClient.js'
-import { withLoading } from '@/composables/useLoading.js'
 
 export const listarContatos = async () => {
-  return withLoading(
-    httpClient.get('/contatos'),
-    1500
-  )
+  try {
+    const response = await httpClient.get('/contacts')
+    return { success: true, data: response.data }
+  } catch (error) {
+    console.error('Erro ao listar contatos:', error)
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Erro ao listar contatos'
+    }
+  }
 }
 
 export const criarContato = async (contato) => {
-  return withLoading(
-    httpClient.post('/contatos', contato),
-    1500
-  )
+  try {
+    const response = await httpClient.post('/contacts', contato)
+    return { success: true, data: response.data }
+  } catch (error) {
+    console.error('Erro ao criar contato:', error)
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Erro ao criar contato'
+    }
+  }
 }
 
 export const excluirContato = async (id) => {
-  return withLoading(
-    httpClient.delete(`/contatos/${id}`),
-    1500
-  )
+  try {
+    await httpClient.delete(`/contacts/${id}`)
+    return { success: true }
+  } catch (error) {
+    console.error('Erro ao excluir contato:', error)
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Erro ao excluir contato'
+    }
+  }
 }
 
 export const atualizarContato = async (id, contato) => {
-  return withLoading(
-    httpClient.put(`/contatos/${id}`, contato),
-    1500
-  )
+  try {
+    const response = await httpClient.put(`/contacts/${id}`, contato)
+    return { success: true, data: response.data }
+  } catch (error) {
+    console.error('Erro ao atualizar contato:', error)
+    return {
+      success: false,
+      error: error.response?.data?.message || 'Erro ao atualizar contato'
+    }
+  }
 }
