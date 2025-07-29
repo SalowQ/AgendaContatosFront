@@ -2,6 +2,15 @@
 
 Este projeto é um sistema de gerenciamento de contatos implementado como uma aplicação Vue.js com TypeScript. O objetivo é demonstrar conhecimentos em desenvolvimento frontend, arquitetura de software e boas práticas de programação.
 
+## 📋 Sobre o Projeto
+
+Este é o **frontend** da aplicação Agenda de Contatos. O **backend** está disponível em um repositório separado:
+
+- **🔗 Backend Repository**: [https://github.com/SalowQ/AgendaContatos](https://github.com/SalowQ/AgendaContatos)
+- **🌐 Frontend Online**: [https://agenda-contatos-front.vercel.app/](https://agenda-contatos-front.vercel.app/)
+
+> **⚠️ Importante**: Para que o frontend funcione corretamente, o backend e banco de dados precisam estar rodando localmente.
+
 ## 🌐 URLs
 
 ### Produção
@@ -12,6 +21,7 @@ Este projeto é um sistema de gerenciamento de contatos implementado como uma ap
 
 - **Aplicação Principal**: `http://localhost:5173`
 - **Preview**: `http://localhost:4173`
+- **API Backend**: `https://localhost:7289/`
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -43,6 +53,8 @@ Este projeto é um sistema de gerenciamento de contatos implementado como uma ap
 
 ## 🔧 Instalação
 
+### Frontend
+
 1. Clone o repositório:
 
 ```bash
@@ -56,6 +68,21 @@ cd AgendaContatosFront
 npm install
 ```
 
+### Backend
+
+Para que a aplicação funcione completamente, você também precisa do backend:
+
+1. Clone o repositório do backend:
+
+```bash
+git clone https://github.com/SalowQ/AgendaContatos
+cd AgendaContatos
+```
+
+2. Siga as instruções de instalação e configuração do backend no repositório correspondente.
+
+3. Certifique-se de que o backend esteja rodando em `https://localhost:7289/`
+
 ## 🏃‍♂️ Executando o Projeto
 
 ### Desenvolvimento
@@ -67,6 +94,22 @@ npm run dev
 ```
 
 O projeto estará disponível em `http://localhost:5173`
+
+### Configuração da API
+
+O frontend está configurado para se comunicar com a API local. A URL da API está definida em `src/api/httpClient.js`:
+
+```javascript
+baseURL: import.meta.env.VITE_API_URL || 'https://localhost:7289/api'
+```
+
+**Para usar a aplicação completa:**
+
+1. **Inicie o backend** (seguindo as instruções do repositório backend)
+2. **Inicie o frontend**: `npm run dev`
+3. **Acesse**: `http://localhost:5173` ou `https://agenda-contatos-front.vercel.app/`
+
+> **💡 Dica**: Se o backend estiver rodando em uma porta diferente, você pode configurar a variável de ambiente `VITE_API_URL` no arquivo `.env.local`
 
 ### Build
 
@@ -154,12 +197,19 @@ AgendaContatosFront/
 
 ## 🔄 Fluxo de Desenvolvimento
 
+### Arquitetura do Sistema
+
+O projeto está dividido em duas partes:
+
+- **Frontend** (este repositório): Interface Vue.js hospedada no Vercel
+- **Backend** ([AgendaContatos](https://github.com/SalowQ/AgendaContatos)): API e banco de dados rodando localmente
+
 ### Desenvolvimento Local
 
 1. **Autenticação**: Sistema de login simples com localStorage
 2. **Proteção de Rotas**: Middleware de autenticação no router
 3. **Gerenciamento de Estado**: Composables Vue para estado global
-4. **API Integration**: Serviços para comunicação com backend
+4. **API Integration**: Serviços para comunicação com backend local
 
 ### Funcionalidades
 
@@ -305,6 +355,23 @@ npm run preview
 2. **Dependências**: Execute `npm install` novamente
 3. **TypeScript**: Execute `npm run type-check` para verificar tipos
 4. **Lint**: Execute `npm run lint` para corrigir problemas de código
+
+### Problemas de Conexão com API
+
+1. **Backend não está rodando**: Certifique-se de que o backend esteja rodando em `https://localhost:7289/`
+2. **Erro de CORS**: Verifique se o backend está configurado para aceitar requisições do frontend
+3. **Certificado SSL**: O backend usa HTTPS, certifique-se de aceitar certificados auto-assinados no navegador
+4. **Porta diferente**: Se o backend estiver em outra porta, configure `VITE_API_URL` no `.env.local`
+
+### Verificação de Conectividade
+
+Para testar se a API está funcionando:
+
+```bash
+curl -k https://localhost:7289/api/health
+```
+
+> **⚠️ Nota**: O `-k` é necessário para aceitar certificados auto-assinados em desenvolvimento
 
 ### Logs de Desenvolvimento
 
