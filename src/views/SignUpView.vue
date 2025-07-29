@@ -157,7 +157,6 @@ const handleRegister = async () => {
       })
     }
   } catch (err) {
-    console.error('Erro ao cadastrar:', err)
     await notify({
       title: 'Erro',
       message: 'Erro inesperado ao criar conta',

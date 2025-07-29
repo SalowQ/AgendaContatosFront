@@ -77,7 +77,6 @@ export function useContacts() {
         contatos.value = []
       }
     } catch (err) {
-      console.error('Erro ao carregar contatos:', err)
       error.value = 'Erro inesperado ao carregar contatos'
       // Ensure contatos is always an array even on error
       contatos.value = []
@@ -111,7 +110,6 @@ export function useContacts() {
         return { success: false, error: response.error }
       }
     } catch (err) {
-      console.error('Erro ao adicionar contato:', err)
       error.value = 'Erro inesperado ao adicionar contato'
       return { success: false, error: 'Erro inesperado ao adicionar contato' }
     }
@@ -140,7 +138,6 @@ export function useContacts() {
         return { success: false, error: response.error }
       }
     } catch (err) {
-      console.error('Erro ao remover contato:', err)
       error.value = 'Erro inesperado ao remover contato'
       return { success: false, error: 'Erro inesperado ao remover contato' }
     }
@@ -176,7 +173,6 @@ export function useContacts() {
         return { success: false, error: response.error }
       }
     } catch (err) {
-      console.error('Erro ao editar contato:', err)
       error.value = 'Erro inesperado ao editar contato'
       return { success: false, error: 'Erro inesperado ao editar contato' }
     }

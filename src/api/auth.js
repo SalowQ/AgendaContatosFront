@@ -51,7 +51,6 @@ export const login = async (email, password) => {
       error: 'Resposta inválida do servidor'
     }
   } catch (error) {
-    console.error('Erro no login:', error)
 
     if (error.response) {
       const responseData = error.response.data
@@ -114,7 +113,6 @@ export const register = async (name, email, password, confirmPassword) => {
       error: 'Resposta inválida do servidor'
     }
   } catch (error) {
-    console.error('Erro no cadastro:', error)
 
     if (error.response) {
       const responseData = error.response.data

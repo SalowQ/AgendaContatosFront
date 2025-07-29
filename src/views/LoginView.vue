@@ -95,7 +95,6 @@ const handleLogin = async () => {
         })
       }
     } catch (err) {
-      console.error('Erro no login:', err)
       await notify({
         title: 'Erro',
         message: 'Erro inesperado ao fazer login',
