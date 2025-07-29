@@ -26,7 +26,6 @@ const router = createRouter({
       name: 'cadastro',
       component: () => import('../views/RegisterView.vue'),
     },
-    // Rota 404 - deve ser a última para capturar apenas rotas não encontradas
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',

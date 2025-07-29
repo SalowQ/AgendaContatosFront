@@ -1,89 +1,30 @@
 import httpClient from './httpClient.js'
+import { withLoading } from '@/composables/useLoading.js'
 
-// Função auxiliar para executar com loading
-const withLoading = async (promise, message, minDuration = 1000) => {
-  // Importação dinâmica para evitar dependência circular
-  const { useLoading } = await import('../composables/useLoading.js')
-  const { withLoading: executeWithLoading } = useLoading()
-
-  return executeWithLoading(promise, message, minDuration)
-}
-
-export const getContatos = async () => {
+export const listarContatos = async () => {
   return withLoading(
-    (async () => {
-      try {
-        const response = await httpClient.get('/contacts')
-        return { success: true, data: response.data }
-      } catch (error) {
-        console.error('Erro ao buscar contatos:', error)
-        return {
-          success: false,
-          error: error.response?.data?.message || 'Erro ao buscar contatos',
-        }
-      }
-    })(),
-    'Carregando contatos...',
-    1500, // 1.5 segundos para teste
+    httpClient.get('/contatos'),
+    1500
   )
 }
 
-// Criar novo contato
-export const createContato = async (contatoData) => {
+export const criarContato = async (contato) => {
   return withLoading(
-    (async () => {
-      try {
-        const response = await httpClient.post('/contacts', contatoData)
-        return { success: true, data: response.data }
-      } catch (error) {
-        console.error('Erro ao criar contato:', error)
-        return {
-          success: false,
-          error: error.response?.data?.message || 'Erro ao criar contato',
-        }
-      }
-    })(),
-    'Salvando contato...',
-    1500, // 1.5 segundos para teste
+    httpClient.post('/contatos', contato),
+    1500
   )
 }
 
-// Excluir contato
-export const deleteContato = async (id) => {
+export const excluirContato = async (id) => {
   return withLoading(
-    (async () => {
-      try {
-        await httpClient.delete(`/contacts/${id}`)
-        return { success: true }
-      } catch (error) {
-        console.error('Erro ao excluir contato:', error)
-        return {
-          success: false,
-          error: error.response?.data?.message || 'Erro ao excluir contato',
-        }
-      }
-    })(),
-    'Excluindo contato...',
-    1500, // 1.5 segundos para teste
+    httpClient.delete(`/contatos/${id}`),
+    1500
   )
 }
 
-// Atualizar contato
-export const updateContato = async (id, contatoData) => {
+export const atualizarContato = async (id, contato) => {
   return withLoading(
-    (async () => {
-      try {
-        const response = await httpClient.put(`/contacts/${id}`, contatoData)
-        return { success: true, data: response.data }
-      } catch (error) {
-        console.error('Erro ao atualizar contato:', error)
-        return {
-          success: false,
-          error: error.response?.data?.message || 'Erro ao atualizar contato',
-        }
-      }
-    })(),
-    'Atualizando contato...',
-    1500, // 1.5 segundos para teste
+    httpClient.put(`/contatos/${id}`, contato),
+    1500
   )
 }

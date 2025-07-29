@@ -105,7 +105,6 @@ const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 
-// Validação do formulário
 const isFormValid = computed(() => {
   const hasValidPassword =
     password.value.length >= 8 &&

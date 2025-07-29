@@ -1,92 +1,145 @@
-import { ref, readonly } from 'vue'
-import * as contatosAPI from '@/api/contatos.js'
-import { useModal, showError, type ErrorResponse } from '@/composables/useModal'
+import { ref, computed, readonly } from 'vue'
+import { listarContatos, criarContato, excluirContato, atualizarContato } from '@/api/contatos'
+import { showError } from '@/composables/useModal'
 
-interface Contato {
-  id: number
+export interface Contato {
+  id: string
   name: string
   phone: string
   email: string
 }
 
-const contatos = ref<Contato[]>([])
-const error = ref<string | null>(null)
-const { notify } = useModal()
+export interface ContatosResponse {
+  success: boolean
+  data?: Contato[]
+  error?: string
+}
 
-export const useContacts = () => {
+export interface ContatoResponse {
+  success: boolean
+  data?: Contato
+  error?: string
+}
+
+export function useContacts() {
+  const contatos = ref<Contato[]>([])
+  const isLoading = ref(false)
+  const error = ref<string | null>(null)
+
   const carregarContatos = async () => {
-    error.value = null
-
     try {
-      const result = await contatosAPI.getContatos()
-      if (result.success && result.data) {
-        contatos.value = result.data.contacts || []
+      const response = await listarContatos()
+      if (response.success) {
+        contatos.value = response.data || []
       } else {
-        error.value = result.error || 'Erro ao carregar contatos'
-
-        // Verifica se o erro tem o formato ErrorResponse
-        if (result.error && typeof result.error === 'object' && 'errorMessages' in result.error) {
-          await showError(result.error as ErrorResponse, 'Erro ao carregar contatos')
+        if (
+          response.error &&
+          typeof response.error === 'object' &&
+          'errorMessages' in response.error
+        ) {
+          await showError(response.error as any, 'Erro ao carregar contatos')
         } else {
-          notify({
-            title: 'Erro',
-            message: result.error || 'Erro ao carregar contatos',
-            type: 'error',
-          })
+          error.value = response.error || 'Erro ao carregar contatos'
         }
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido'
-      notify({
-        title: 'Erro',
-        message: '',
-        type: 'error',
-        items: [errorMessage],
-      })
-      error.value = 'Erro ao carregar contatos'
-      console.error(err)
+      console.error('Erro ao carregar contatos:', err)
+      error.value = 'Erro inesperado ao carregar contatos'
     }
   }
 
   const adicionarContato = async (contatoData: Omit<Contato, 'id'>) => {
     try {
-      const result = await contatosAPI.createContato(contatoData)
-      if (result.success && result.data) {
-        // Adiciona o novo contato à lista
-        contatos.value.push(result.data)
-        // Reordena a lista alfabeticamente
+      const response = await criarContato(contatoData)
+      if (response.success) {
+        contatos.value.push(response.data!)
         contatos.value.sort((a, b) => a.name.localeCompare(b.name))
         return { success: true }
       } else {
-        // Verifica se o erro tem o formato ErrorResponse
-        if (result.error && typeof result.error === 'object' && 'errorMessages' in result.error) {
-          await showError(result.error as ErrorResponse, 'Erro ao adicionar contato')
+        if (
+          response.error &&
+          typeof response.error === 'object' &&
+          'errorMessages' in response.error
+        ) {
+          await showError(response.error as any, 'Erro ao adicionar contato')
         } else {
-          notify({
-            title: 'Erro',
-            message: result.error || 'Erro ao adicionar contato',
-            type: 'error',
-          })
+          error.value = response.error || 'Erro ao adicionar contato'
         }
-        return { success: false, error: result.error }
+        return { success: false, error: response.error }
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro desconhecido'
-      notify({
-        title: 'Erro',
-        message: 'Erro ao adicionar contato',
-        type: 'error',
-        items: [errorMessage],
-      })
       console.error('Erro ao adicionar contato:', err)
-      return { success: false, error: 'Erro ao adicionar contato' }
+      error.value = 'Erro inesperado ao adicionar contato'
+      return { success: false, error: 'Erro inesperado ao adicionar contato' }
     }
   }
 
+  const removerContato = async (id: string) => {
+    try {
+      const response = await excluirContato(id)
+      if (response.success) {
+        contatos.value = contatos.value.filter((contato) => contato.id !== id)
+        return { success: true }
+      } else {
+        if (
+          response.error &&
+          typeof response.error === 'object' &&
+          'errorMessages' in response.error
+        ) {
+          await showError(response.error as any, 'Erro ao remover contato')
+        } else {
+          error.value = response.error || 'Erro ao remover contato'
+        }
+        return { success: false, error: response.error }
+      }
+    } catch (err) {
+      console.error('Erro ao remover contato:', err)
+      error.value = 'Erro inesperado ao remover contato'
+      return { success: false, error: 'Erro inesperado ao remover contato' }
+    }
+  }
+
+  const editarContato = async (id: string, contatoData: Omit<Contato, 'id'>) => {
+    try {
+      const response = await atualizarContato(id, contatoData)
+      if (response.success) {
+        const index = contatos.value.findIndex((contato) => contato.id === id)
+        if (index !== -1) {
+          contatos.value[index] = { ...response.data!, id }
+          contatos.value.sort((a, b) => a.name.localeCompare(b.name))
+        }
+        return { success: true }
+      } else {
+        if (
+          response.error &&
+          typeof response.error === 'object' &&
+          'errorMessages' in response.error
+        ) {
+          await showError(response.error as any, 'Erro ao editar contato')
+        } else {
+          error.value = response.error || 'Erro ao editar contato'
+        }
+        return { success: false, error: response.error }
+      }
+    } catch (err) {
+      console.error('Erro ao editar contato:', err)
+      error.value = 'Erro inesperado ao editar contato'
+      return { success: false, error: 'Erro inesperado ao editar contato' }
+    }
+  }
+
+  const contatosOrdenados = computed(() => {
+    return [...contatos.value].sort((a, b) => a.name.localeCompare(b.name))
+  })
+
   return {
-    contatos,
+    contatos: readonly(contatos),
+    contatosOrdenados,
+    isLoading: readonly(isLoading),
     error: readonly(error),
     carregarContatos,
     adicionarContato,
+    removerContato,
+    editarContato,
   }
 }

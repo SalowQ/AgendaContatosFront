@@ -1,4 +1,3 @@
-// Declaração de módulo para auth.js
 declare module '@/api/auth.js' {
   export interface LoginResponse {
     success: boolean
@@ -22,7 +21,6 @@ declare module '@/api/auth.js' {
     }
   }
 
-  // Interface para a resposta da API de login
   export interface ApiLoginResponse {
     name: string
     token: string
